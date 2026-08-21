@@ -32,7 +32,7 @@ Install Smarter Agents rules and skills globally for yourself:
 
 ## 📁 Repository Structure
 
-```
+```text
 .
 ├── LICENSE                     # Apache 2.0 License
 ├── README.md                   # Overview & installation

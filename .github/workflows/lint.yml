@@ -1,0 +1,30 @@
+name: Lint & Quality Checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  lint:
+    name: Lint & Style Verification
+    runs-on: ubuntu-slim
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install uv and tools
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      - name: Install yamllint and yamlfmt
+        run: |
+          pip install --no-cache-dir yamllint
+          go install github.com/google/yamlfmt/cmd/yamlfmt@latest || pip install --no-cache-dir yamlfmt || true
+      - name: Run make lint
+        run: make lint
+      - name: Run make test
+        run: make test

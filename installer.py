@@ -27,46 +27,58 @@ SKILLS_SRC = TOOLKIT_ROOT / "skills"
 def get_agent_targets(target_dir: Path, harness: str):
     """Return dictionary of target paths for rules and skills based on target harness."""
     targets = []
-    
+
     if harness in ("all", "default", "antigravity", "generic"):
-        targets.append({
-            "name": ".agents",
-            "rules_dir": target_dir / ".agents" / "rules",
-            "skills_dir": target_dir / ".agents" / "skills",
-        })
-        
+        targets.append(
+            {
+                "name": ".agents",
+                "rules_dir": target_dir / ".agents" / "rules",
+                "skills_dir": target_dir / ".agents" / "skills",
+            }
+        )
+
     if harness in ("all", "copilot", "github"):
-        targets.append({
-            "name": ".github",
-            "rules_dir": target_dir / ".github" / "instructions",
-            "skills_dir": target_dir / ".github" / "skills",
-        })
+        targets.append(
+            {
+                "name": ".github",
+                "rules_dir": target_dir / ".github" / "instructions",
+                "skills_dir": target_dir / ".github" / "skills",
+            }
+        )
 
     if harness in ("all", "opencode"):
-        targets.append({
-            "name": "opencode",
-            "rules_dir": target_dir / ".opencode" / "instructions",
-            "skills_dir": target_dir / ".opencode" / "skills",
-        })
+        targets.append(
+            {
+                "name": "opencode",
+                "rules_dir": target_dir / ".opencode" / "instructions",
+                "skills_dir": target_dir / ".opencode" / "skills",
+            }
+        )
 
     if harness in ("all", "pi"):
-        targets.append({
-            "name": "pi",
-            "rules_dir": target_dir / ".pi" / "rules",
-            "skills_dir": target_dir / ".pi" / "skills",
-        })
+        targets.append(
+            {
+                "name": "pi",
+                "rules_dir": target_dir / ".pi" / "rules",
+                "skills_dir": target_dir / ".pi" / "skills",
+            }
+        )
 
     if harness in ("all", "cursor"):
-        targets.append({
-            "name": "cursor",
-            "rules_dir": target_dir / ".cursor" / "rules",
-            "skills_dir": target_dir / ".cursor" / "skills",
-        })
+        targets.append(
+            {
+                "name": "cursor",
+                "rules_dir": target_dir / ".cursor" / "rules",
+                "skills_dir": target_dir / ".cursor" / "skills",
+            }
+        )
 
     return targets
 
 
-def install_assets(src_dir: Path, dest_dir: Path, use_symlinks: bool = True, clean: bool = False):
+def install_assets(
+    src_dir: Path, dest_dir: Path, use_symlinks: bool = True, clean: bool = False
+):
     """Sync or symlink files from src_dir to dest_dir."""
     if not src_dir.exists():
         return 0
@@ -87,7 +99,9 @@ def install_assets(src_dir: Path, dest_dir: Path, use_symlinks: bool = True, cle
                 target_path.unlink()
 
         if target_path.is_symlink() or target_path.exists():
-            print(f"  [skip] {item.name} already exists in {dest_dir.relative_to(Path.cwd()) if dest_dir.is_relative_to(Path.cwd()) else dest_dir}")
+            print(
+                f"  [skip] {item.name} already exists in {dest_dir.relative_to(Path.cwd()) if dest_dir.is_relative_to(Path.cwd()) else dest_dir}"
+            )
             continue
 
         if use_symlinks:
@@ -142,7 +156,16 @@ def main():
     )
     parser.add_argument(
         "--harness",
-        choices=["all", "default", "antigravity", "copilot", "opencode", "pi", "cursor", "generic"],
+        choices=[
+            "all",
+            "default",
+            "antigravity",
+            "copilot",
+            "opencode",
+            "pi",
+            "cursor",
+            "generic",
+        ],
         default="default",
         help="Target agent harness structure (default: default [installs into .agents and .github])",
     )
@@ -166,10 +189,12 @@ def main():
 
     target_dir = Path(args.target).resolve()
     if not target_dir.exists():
-        print(f"Error: Target directory '{target_dir}' does not exist.", file=sys.stderr)
+        print(
+            f"Error: Target directory '{target_dir}' does not exist.", file=sys.stderr
+        )
         sys.exit(1)
 
-    print(f"=== Smarter Agents Toolkit Installer ===")
+    print("=== Smarter Agents Toolkit Installer ===")
     print(f"Source Toolkit: {TOOLKIT_ROOT}")
     print(f"Target Project: {target_dir}")
     print(f"Mode: {'Copy' if args.copy else 'Symlink'}")
@@ -181,8 +206,12 @@ def main():
 
     for t in targets:
         print(f"Installing into [{t['name']}]:")
-        r_count = install_assets(RULES_SRC, t["rules_dir"], use_symlinks=not args.copy, clean=args.clean)
-        s_count = install_assets(SKILLS_SRC, t["skills_dir"], use_symlinks=not args.copy, clean=args.clean)
+        r_count = install_assets(
+            RULES_SRC, t["rules_dir"], use_symlinks=not args.copy, clean=args.clean
+        )
+        s_count = install_assets(
+            SKILLS_SRC, t["skills_dir"], use_symlinks=not args.copy, clean=args.clean
+        )
         total_rules += r_count
         total_skills += s_count
         print()
@@ -190,7 +219,9 @@ def main():
     if args.init_config:
         create_consumer_config(target_dir)
 
-    print(f"Done! Successfully installed {total_rules} rule(s) and {total_skills} skill(s).")
+    print(
+        f"Done! Successfully installed {total_rules} rule(s) and {total_skills} skill(s)."
+    )
 
 
 if __name__ == "__main__":
