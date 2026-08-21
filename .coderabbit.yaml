@@ -1,7 +1,7 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 # CodeRabbit Configuration (.coderabbit.yaml)
 # Documentation: https://docs.coderabbit.ai/guides/configure-coderabbit
 
-version: "2"
 language: "en-US"
 tone_instructions: "Be extremely concise, direct, and actionable. Focus on adherence to repository rules, agent failure mode mitigations, test completeness, and diff boundaries."
 
