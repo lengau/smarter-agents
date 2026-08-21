@@ -1,0 +1,37 @@
+# collections.yaml - Smarter Agents Toolkit Manifest
+
+schema_version: "1.0.0"
+name: "smarter-agents"
+description: "Core rules and operational skills to eliminate coding agent failure modes"
+license: "Apache-2.0"
+repository: "https://github.com/lengau/smarter-agents"
+
+collections:
+  - name: "smarter-agents-core"
+    description: "Full suite of foundational rules and verification skills"
+    rules:
+      - "rules/scoped-autonomy.md"
+      - "rules/test-driven-verification.md"
+      - "rules/robust-file-ops.md"
+      - "rules/goal-anchor.md"
+    skills:
+      - "skills/verify-and-lint"
+      - "skills/diff-auditor"
+      - "skills/patch-repair"
+      - "skills/context-checkpoint"
+
+  - name: "rules-only"
+    description: "Only directive rules for agent reasoning and safety"
+    rules:
+      - "rules/scoped-autonomy.md"
+      - "rules/test-driven-verification.md"
+      - "rules/robust-file-ops.md"
+      - "rules/goal-anchor.md"
+
+  - name: "skills-only"
+    description: "Operational skills without strict behavioral rules"
+    skills:
+      - "skills/verify-and-lint"
+      - "skills/diff-auditor"
+      - "skills/patch-repair"
+      - "skills/context-checkpoint"
