@@ -19,9 +19,21 @@ Licensed under [Apache 2.0](LICENSE).
 
 ## 🚀 Quick Start: Add to Any Project
 
-You can install all rules and skills into any repository or agent workspace using the included `installer.py` or through Copilot Collections.
+You can install all rules and skills into any repository or agent workspace using an AI prompt, the included `installer.py`, or Copilot Collections.
 
-### Option 1: Automatic Installer
+### Option 1: Copy-Pastable Agent Bootstrap Prompt 🤖
+
+Paste this prompt directly into your agent's chat window (e.g. **Claude Code**, **Pi**, **OpenCode**, **Antigravity**, **Cursor**, **Aider**):
+
+```markdown
+Please bootstrap and install the Smarter Agents toolkit (rules and skills) into this repository:
+1. Detect active agent harness conventions (.agents/, .github/, .opencode/, .pi/, or .cursor/).
+2. Run: git clone --depth 1 https://github.com/lengau/smarter-agents.git /tmp/smarter-agents && python3 /tmp/smarter-agents/installer.py . --copy --harness default && rm -rf /tmp/smarter-agents
+3. Read the installed rules in .agents/rules/ or .github/instructions/ into context and apply them.
+```
+*(For detailed bootstrap options and harness customization, see [prompts/bootstrap.md](prompts/bootstrap.md) or [BOOTSTRAP.md](BOOTSTRAP.md)).*
+
+### Option 2: Automatic CLI Installer
 
 Clone this repository and run the installer targeting your project:
 
@@ -39,7 +51,7 @@ python3 installer.py /path/to/your/project --copy
 python3 installer.py /path/to/your/project --harness opencode
 ```
 
-### Option 2: Copilot Collections Sync
+### Option 3: Copilot Collections Sync
 
 If your agent harness or workspace uses automatic Copilot Collections sync (e.g. Antigravity PreInvocation hooks or GitHub Copilot Actions), simply add a `.copilot-collections.yaml` in your project root:
 
@@ -56,8 +68,12 @@ collections:
 .
 ├── LICENSE                     # Apache 2.0 License
 ├── PLAN.md                     # Roadmap and architectural design
+├── BOOTSTRAP.md                # Quick agent bootstrap instructions
 ├── collections.yaml            # Collections manifest for automated sync tools
 ├── installer.py                # Universal CLI installer for projects & harnesses
+│
+├── prompts/                    # Ready-to-use agent prompts & instructions
+│   └── bootstrap.md            # Complete agent bootstrap prompt & harness matrix
 │
 ├── rules/                      # Behavioral guardrails and reasoning instructions
 │   ├── scoped-autonomy.md
