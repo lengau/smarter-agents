@@ -1,0 +1,22 @@
+# CodeRabbit Configuration (.coderabbit.yaml)
+# Documentation: https://docs.coderabbit.ai/guides/configure-coderabbit
+
+version: "2"
+language: "en-US"
+tone_instructions: "Be extremely concise, direct, and actionable. Focus on adherence to repository rules, agent failure mode mitigations, test completeness, and diff boundaries."
+
+reviews:
+  profile: "assertive"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: true
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - "main"
+
+chat:
+  auto_reply: true
