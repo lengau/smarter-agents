@@ -2,7 +2,8 @@
 
 PROJECT := smarter-agents
 PYTHON_SOURCES := installer.py
-YAML_SOURCES := collections.yaml .yamllint.yaml .coderabbit.yaml .github/workflows/*.yml
+YAML_SOURCES := collections.yaml .yamllint.yaml .coderabbit.yaml .pre-commit-config.yaml .github/workflows/*.yaml
+JSON_SOURCES := .pymarkdown.json
 MD_SOURCES := README.md rules/*.md
 
 .DEFAULT_GOAL := help
@@ -14,7 +15,7 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: lint
-lint: lint-yaml lint-md lint-python ## Run all repository linters
+lint: lint-yaml lint-json lint-md lint-python lint-hooks ## Run all repository linters
 
 .PHONY: lint-yaml
 lint-yaml: ## Check YAML files with yamlfmt and yamllint
@@ -23,23 +24,42 @@ lint-yaml: ## Check YAML files with yamlfmt and yamllint
 	@echo "==> Running yamlfmt check..."
 	yamlfmt -lint .
 
+.PHONY: lint-json
+lint-json: ## Validate JSON files
+	@echo "==> Validating JSON files..."
+	python3 -m json.tool $(JSON_SOURCES) > /dev/null
+
 .PHONY: lint-md
 lint-md: ## Check Markdown files with pymarkdownlnt
 	@echo "==> Running pymarkdownlnt..."
 	uv tool run pymarkdownlnt --config .pymarkdown.json scan $(MD_SOURCES)
 
 .PHONY: lint-python
-lint-python: ## Check Python files with ruff
+lint-python: ## Check Python files with ruff and ty
 	@echo "==> Running ruff check..."
 	ruff check $(PYTHON_SOURCES)
+	@echo "==> Running ty type check..."
+	uv tool run ty check $(PYTHON_SOURCES)
+
+.PHONY: lint-hooks
+lint-hooks: ## Run prek git hook validation across repository
+	@echo "==> Running prek check..."
+	uv tool run prek run --all-files
 
 .PHONY: format
-format: format-yaml format-md format-python ## Format all files in the repository
+format: format-yaml format-json format-md format-python ## Format all files in the repository
 
 .PHONY: format-yaml
 format-yaml: ## Format YAML files with yamlfmt
 	@echo "==> Formatting YAML with yamlfmt..."
 	yamlfmt .
+
+.PHONY: format-json
+format-json: ## Format JSON files
+	@echo "==> Formatting JSON files..."
+	@for f in $(JSON_SOURCES); do \
+		python3 -m json.tool "$$f" "$$f.tmp" && mv "$$f.tmp" "$$f"; \
+	done
 
 .PHONY: format-md
 format-md: ## Format Markdown files with pymarkdownlnt
@@ -51,6 +71,11 @@ format-python: ## Format Python files with ruff
 	@echo "==> Formatting Python with ruff..."
 	ruff format $(PYTHON_SOURCES)
 	ruff check --fix $(PYTHON_SOURCES)
+
+.PHONY: setup-hooks
+setup-hooks: ## Install git hooks using prek
+	@echo "==> Installing git hooks with prek..."
+	uv tool run prek install
 
 .PHONY: test
 test: ## Run tests

@@ -15,14 +15,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.14"
-      - name: Install uv and tools
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Install yamllint, yamlfmt, and ruff
         run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-      - name: Install yamllint and yamlfmt
-        run: |
-          pip install --no-cache-dir yamllint
+          pip install --no-cache-dir yamllint ruff
           go install github.com/google/yamlfmt/cmd/yamlfmt@latest || pip install --no-cache-dir yamlfmt || true
       - name: Run make lint
         run: make lint
