@@ -11,7 +11,10 @@
             "enabled": true
         },
         "line-length": {
-            "enabled": false
+            "enabled": true,
+            "line_length": 120,
+            "code_block_line_length": 120,
+            "tables": false
         },
         "first-line-heading": {
             "enabled": false

@@ -19,10 +19,16 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - name: Install yamllint, yamlfmt, and ruff
+      - name: Install tools and yamlfmt binary
         run: |
           pip install --no-cache-dir yamllint ruff
-          go install github.com/google/yamlfmt/cmd/yamlfmt@latest || pip install --no-cache-dir yamlfmt || true
+          mkdir -p "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          YAMLFMT_VER=$(curl -s "https://api.github.com/repos/google/yamlfmt/releases/latest" | \
+            grep -Po '"tag_name": "v\K[^"]*')
+          URL="https://github.com/google/yamlfmt/releases/download/v${YAMLFMT_VER}/yamlfmt_${YAMLFMT_VER}_Linux_x86_64.tar.gz"
+          curl -sSL "$$URL" | tar -xz -C "$$HOME/.local/bin" yamlfmt
+          chmod +x "$$HOME/.local/bin/yamlfmt"
       - name: Run make lint
         run: make lint
       - name: Run make test

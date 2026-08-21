@@ -1,6 +1,8 @@
 # Smarter Agents 🧠⚡
 
-A standardized, modular library of **Rules** (`.agents/rules`, `.github/instructions`) and **Skills** (`.agents/skills`, `.github/skills`) built to eliminate common failure modes in modern coding agents (such as **Pi**, **OpenCode**, **SWE-agents**, **Antigravity**, and **Copilot**).
+A standardized, modular library of **Rules** (`.agents/rules`, `.github/instructions`) and **Skills**
+(`.agents/skills`, `.github/skills`) built to eliminate common failure modes in modern coding agents
+(such as **Pi**, **OpenCode**, **SWE-agents**, **Antigravity**, and **Copilot**).
 
 Licensed under [Apache 2.0](LICENSE).
 
@@ -13,7 +15,8 @@ Paste this prompt into your agent to install Smarter Agents globally:
 ```markdown
 Install Smarter Agents rules and skills globally for yourself:
 1. Clone `https://github.com/lengau/smarter-agents.git` (e.g. to `~/.smarter-agents` or `~/.gemini/`).
-2. Symlink or copy the `rules/` and `skills/` into your global agent configuration directory (e.g., `~/.gemini/config/skills/`, `~/.agents/`, `~/.config/opencode/`, `~/.pi/`, or your harness's global instructions/skills path).
+2. Symlink or copy the `rules/` and `skills/` into your global agent configuration directory
+   (e.g., `~/.gemini/config/skills/`, `~/.agents/`, `~/.config/opencode/`, `~/.pi/`).
 3. Confirm installation and list the active rules and skills.
 ```
 
@@ -23,7 +26,7 @@ Install Smarter Agents rules and skills globally for yourself:
 
 | Problem | Root Cause | Solution |
 | :--- | :--- | :--- |
-| **Context Amnesia & Drift** | Multi-turn compaction strips goals | `rules/goal-anchor.md` & `skills/context-checkpoint` |
+| **Context Amnesia** | Compaction strips goals | `rules/goal-anchor.md` & `skills/context-checkpoint` |
 | **Sloppy Engineering** | Declares tasks done without testing | `rules/test-driven-verification.md` |
 | **Scope Overreach** | Eager refactors & stripping comments | `rules/scoped-autonomy.md` & `skills/diff-auditor` |
 | **Brittle File Edits** | Stale buffers & chunk truncation | `rules/robust-file-ops.md` & `skills/patch-repair` |
