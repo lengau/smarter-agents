@@ -37,7 +37,7 @@ def get_agent_targets(target_dir: Path, harness: str):
             }
         )
 
-    if harness in ("all", "copilot", "github"):
+    if harness in ("all", "default", "copilot", "github"):
         targets.append(
             {
                 "name": ".github",
