@@ -40,6 +40,7 @@ Install Smarter Agents rules and skills globally for yourself:
 ├── installer.py                # Universal CLI installer for projects & harnesses
 │
 ├── rules/                      # Behavioral guardrails and reasoning instructions
+│   ├── basic-directives.md
 │   ├── scoped-autonomy.md
 │   ├── test-driven-verification.md
 │   ├── robust-file-ops.md

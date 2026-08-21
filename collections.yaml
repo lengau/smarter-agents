@@ -10,6 +10,7 @@ collections:
   - name: "smarter-agents-core"
     description: "Full suite of foundational rules and verification skills"
     rules:
+      - "rules/basic-directives.md"
       - "rules/scoped-autonomy.md"
       - "rules/test-driven-verification.md"
       - "rules/robust-file-ops.md"
@@ -23,6 +24,7 @@ collections:
   - name: "rules-only"
     description: "Only directive rules for agent reasoning and safety"
     rules:
+      - "rules/basic-directives.md"
       - "rules/scoped-autonomy.md"
       - "rules/test-driven-verification.md"
       - "rules/robust-file-ops.md"
