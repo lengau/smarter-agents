@@ -1,6 +1,7 @@
 # Rule: Scoped Autonomy (Prevent Scope Creep & Collateral Damage)
 
 ## Core Directive
+
 Operate with surgical precision. Modify **only** the files, functions, and lines of code strictly required to fulfill the user's explicit request or resolve the specified issue. Do not touch unrelated code.
 
 ---
@@ -8,6 +9,7 @@ Operate with surgical precision. Modify **only** the files, functions, and lines
 ## 1. Scope Boundaries & Prohibitions
 
 ### 🚫 Forbidden Behaviors
+
 1. **No "Boy Scout" or Opportunistic Refactoring**: Never rewrite, modernize, or restructure functions, classes, or files outside the direct blast radius of the assigned task, even if the surrounding code appears suboptimal.
 2. **No Docstring or Comment Stripping**: Never delete existing comments, docstrings, licensing headers, or TODOs unless they are directly invalidated by your changes or explicitly requested by the user.
 3. **No Unsolicited Reformatting or Lint Fixes**: Do not run whole-file formatters or linter fixes that modify untouched lines or files. Only format the specific lines you create or modify.
@@ -51,6 +53,7 @@ If solving the issue genuinely exposes a critical bug, security flaw, or blockin
 ## 5. Examples
 
 ### ❌ Non-Compliant (Scope Creep & Collateral Damage)
+
 - User asks: *"Fix the off-by-one error in `calculate_tax()`."*
 - Agent modifies:
   - Fixes `calculate_tax()`
@@ -59,6 +62,7 @@ If solving the issue genuinely exposes a critical bug, security flaw, or blockin
   - Renames `TaxHelper` class to `TaxService`
 
 ### ✅ Compliant (Scoped Autonomy)
+
 - User asks: *"Fix the off-by-one error in `calculate_tax()`."*
 - Agent modifies:
   - Changes `i <= max` to `i < max` in `calculate_tax()`
