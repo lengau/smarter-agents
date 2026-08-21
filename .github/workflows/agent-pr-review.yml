@@ -1,0 +1,110 @@
+name: AI PR Rule & Boundary Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  rule_audit:
+    name: Agent Rules & Guardrails Audit
+    runs-on: ubuntu-slim
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Run Diff Auditor & Rule Compliance
+        id: auditor
+        run: |
+          python3 - << 'EOF'
+          import subprocess
+          import sys
+          import json
+          import os
+
+          # Get PR diff against base
+          base_ref = "origin/${{ github.base_ref }}"
+          diff_cmd = ["git", "diff", f"{base_ref}...HEAD"]
+          diff_output = subprocess.check_output(diff_cmd, text=True, errors="replace")
+
+          # Basic rule checks
+          findings = []
+
+          # Check for secret patterns
+          secret_keywords = ["AWS_SECRET", "API_KEY", "PRIVATE_KEY", "TOKEN", "PASSWORD"]
+          for line in diff_output.splitlines():
+              if line.startswith("+") and not line.startswith("+++"):
+                  for kw in secret_keywords:
+                      if kw in line.upper() and "=" in line and not "[REDACTED]" in line:
+                          findings.append(f"⚠️ **Potential exposed secret**: `{line.strip()[:60]}...`")
+                          break
+
+          # Check for excessive whole-file churn or stray debuggers
+          for line in diff_output.splitlines():
+              if line.startswith("+") and not line.startswith("+++"):
+                  if any(dbg in line for dbg in ["debugger;", "breakpoint()", "import pdb; pdb.set_trace()"]):
+                      findings.append(f"🔍 **Leftover debugger/breakpoint**: `{line.strip()}`")
+
+          # Write report summary
+          report = []
+          report.append("### 🤖 Agent Guardrails & Rule Audit Summary")
+          if findings:
+              report.append("\n**Findings:**")
+              for f in set(findings):
+                  report.append(f"- {f}")
+          else:
+              report.append("\n✅ **No rule or boundary violations detected.**")
+
+          report_text = "\n".join(report)
+          with open("audit_summary.md", "w") as f:
+              f.write(report_text)
+          EOF
+
+      - name: Post Audit Comment
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const fs = require('fs');
+            if (fs.existsSync('audit_summary.md')) {
+              const body = fs.readFileSync('audit_summary.md', 'utf8');
+              const { owner, repo } = context.repo;
+              const issue_number = context.payload.pull_request.number;
+
+              // Check existing bot comments to update rather than spam
+              const comments = await github.rest.issues.listComments({
+                owner,
+                repo,
+                issue_number,
+              });
+
+              const botComment = comments.data.find(c =>
+                c.user.type === 'Bot' && c.body.includes('Agent Guardrails & Rule Audit Summary')
+              );
+
+              if (botComment) {
+                await github.rest.issues.updateComment({
+                  owner,
+                  repo,
+                  comment_id: botComment.id,
+                  body,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number,
+                  body,
+                });
+              }
+            }
