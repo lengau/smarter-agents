@@ -16,7 +16,6 @@ collections:
       - "rules/robust-file-ops.md"
       - "rules/goal-anchor.md"
     skills:
-      - "skills/verify-and-lint"
       - "skills/diff-auditor"
       - "skills/patch-repair"
       - "skills/context-checkpoint"
@@ -33,7 +32,6 @@ collections:
   - name: "skills-only"
     description: "Operational skills without strict behavioral rules"
     skills:
-      - "skills/verify-and-lint"
       - "skills/diff-auditor"
       - "skills/patch-repair"
       - "skills/context-checkpoint"

@@ -24,7 +24,7 @@ Install Smarter Agents rules and skills globally for yourself:
 | Problem | Root Cause | Solution |
 | :--- | :--- | :--- |
 | **Context Amnesia & Drift** | Multi-turn compaction strips goals | `rules/goal-anchor.md` & `skills/context-checkpoint` |
-| **Sloppy Engineering** | Declares tasks done without testing | `rules/test-driven-verification.md` & `skills/verify-and-lint` |
+| **Sloppy Engineering** | Declares tasks done without testing | `rules/test-driven-verification.md` |
 | **Scope Overreach** | Eager refactors & stripping comments | `rules/scoped-autonomy.md` & `skills/diff-auditor` |
 | **Brittle File Edits** | Stale buffers & chunk truncation | `rules/robust-file-ops.md` & `skills/patch-repair` |
 
@@ -47,7 +47,6 @@ Install Smarter Agents rules and skills globally for yourself:
 │   └── goal-anchor.md
 │
 └── skills/                     # Executable workflows and verification tools
-    ├── verify-and-lint/        # Polyglot test runner with low-token failure traces
     ├── diff-auditor/           # Git diff boundary & AST sanity auditor
     ├── patch-repair/           # Robust fuzzy matching for failed file edits
     └── context-checkpoint/     # Structured memory snapshot across long sessions
