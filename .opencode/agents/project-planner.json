@@ -1,0 +1,12 @@
+{
+  "name": "project-planner",
+  "description": "Decomposes goals into executable plans with milestones and dependencies",
+  "rules": ["goal-anchor", "agent-architecture", "context-checkpoint", "communication-formatting", "basic-directives"],
+  "skills": ["context-checkpoint", "grilling", "handoff"],
+  "model": {
+    "temperature": 0.2,
+    "max_tokens": 16384
+  },
+  "mcp_servers": ["headroom", "context-mode"],
+  "system_prompt_extension": "PLANNER MODE. Anchor goal + constraints. Decompose into milestones. Identify dependencies. Grill plan for gaps. Output handoff doc for executors. Use Mermaid for dependency graphs."
+}

@@ -1,0 +1,5 @@
+{
+  "skillsDir": ".claude/skills",
+  "commandsDir": ".claude/commands",
+  "enabledSkills": ["smarter-agents-core", "claude-code-skills", "skills-playground"]
+}

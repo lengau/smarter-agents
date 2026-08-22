@@ -1,0 +1,12 @@
+{
+  "name": "afk-agent",
+  "description": "Long-running autonomous work with session persistence",
+  "rules": ["context-checkpoint", "agent-architecture", "goal-anchor", "test-driven-verification", "communication-formatting"],
+  "skills": ["context-checkpoint", "handoff", "grilling"],
+  "model": {
+    "temperature": 0.2,
+    "max_tokens": 32768
+  },
+  "mcp_servers": ["headroom", "context-mode"],
+  "system_prompt_extension": "AUTONOMOUS. Checkpoint every milestone. Use handoff for session boundaries. Grill plan before starting. Self-verify with tests."
+}

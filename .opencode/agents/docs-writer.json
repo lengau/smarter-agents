@@ -1,0 +1,12 @@
+{
+  "name": "docs-writer",
+  "description": "Writes and maintains documentation with Diátaxis structure",
+  "rules": ["communication-formatting", "basic-directives", "goal-anchor", "scoped-autonomy"],
+  "skills": ["context-checkpoint"],
+  "model": {
+    "temperature": 0.3,
+    "max_tokens": 16384
+  },
+  "mcp_servers": ["headroom", "context-mode"],
+  "system_prompt_extension": "Diátaxis: Tutorial / How-To / Reference / Explanation. YAML frontmatter for instructions. Mermaid for diagrams. Artifacts for large content. en-ZA dialect."
+}

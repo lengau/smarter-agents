@@ -1,0 +1,6 @@
+# Generic/Antigravity Agent Structure
+rules_dir: .agents/rules
+skills_dir: .agents/skills
+collections:
+  - smarter-agents-core
+  - skills-playground
