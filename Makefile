@@ -11,7 +11,7 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: lint
-lint: lint-yaml lint-json lint-md lint-python lint-workflows lint-hooks ## Run all repository linters
+lint: lint-yaml lint-json lint-renovate lint-md lint-python lint-workflows lint-hooks ## Run all repository linters
 
 .PHONY: lint-yaml
 lint-yaml: ## Check YAML files with yamlfmt and yamllint
@@ -45,6 +45,11 @@ lint-json-schema: ## Validate JSON schemas against Draft 7 metaschema and valida
 		exit 1; \
 	fi
 
+.PHONY: lint-renovate
+lint-renovate: ## Validate Renovate configuration with renovate-config-validator
+	@echo "==> Validating Renovate configuration..."
+	npx --yes --package renovate renovate-config-validator .github/renovate.json
+
 .PHONY: lint-md
 lint-md: ## Check Markdown files with pymarkdownlnt
 	@echo "==> Running pymarkdownlnt..."
@@ -71,7 +76,7 @@ lint-hooks: ## Run prek git hook validation across repository
 
 .PHONY: format
 format: format-yaml format-json format-md format-python ## Format all files in the repository
-
+	
 .PHONY: format-yaml
 format-yaml: ## Format YAML files with yamlfmt
 	@echo "==> Formatting YAML with yamlfmt..."
