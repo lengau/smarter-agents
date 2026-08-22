@@ -25,7 +25,8 @@ Agents running in modern asynchronous environments receive messages and event tr
 
 ## 3. Ephemeral Scratch Space
 
-- **Temporary Files**: Write scratch scripts, debug probes, or one-off data files to the designated artifact scratch
-  directory (or `/tmp`) rather than cluttering the user's project workspace.
+- **Temporary Files**: Write scratch scripts, debug probes, or one-off data files to a unique private directory in the
+  designated artifact scratch location. If `/tmp` is used, apply restrictive permissions, exclude secrets and
+  unredacted PII, and remove temporary files after use.
 - **Workspace Boundaries**: Do not write source code or configuration files outside the designated project boundaries
   unless explicitly requested.
