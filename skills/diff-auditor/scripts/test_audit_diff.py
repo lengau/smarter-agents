@@ -123,6 +123,26 @@ index e69de29..4b825dc 100644
         self.assertEqual(len(res["warnings"]), 1)
         self.assertEqual(res["warnings"][0]["type"], "EXCESSIVE_CHURN")
 
+    def test_detects_simple_three_line_docstring_deletion(self):
+        """Test that a normal 3-line docstring deletion is detected."""
+        sample_diff = """diff --git a/src/helper.py b/src/helper.py
+index e69de29..4b825dc 100644
+--- a/src/helper.py
++++ b/src/helper.py
+@@ -1,5 +1,2 @@
+ def process():
+-    \"\"\"
+-    Process the data.
+-    \"\"\"
+     return True
+"""
+        numstat = {"src/helper.py": (1, 3)}
+        res = audit_diff(sample_diff, numstat)
+        self.assertTrue(res["summary"]["passed"])  # Warnings don't fail the audit
+        self.assertEqual(len(res["warnings"]), 1)
+        self.assertEqual(res["warnings"][0]["type"], "DOCSTRING_DELETION")
+        self.assertEqual(res["warnings"][0]["deleted_count"], 3)
+
 
 if __name__ == "__main__":
     unittest.main()
