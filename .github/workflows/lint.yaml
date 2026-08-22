@@ -21,7 +21,7 @@ jobs:
           enable-cache: true
       - name: Install tools and binaries
         run: |
-          pip install --no-cache-dir yamllint ruff==0.8.4
+          uv tool install yamllint ruff==0.8.4
           mkdir -p "$HOME/.local/bin"
           # Install yamlfmt via go
           go install github.com/google/yamlfmt/cmd/yamlfmt@v0.13.0
