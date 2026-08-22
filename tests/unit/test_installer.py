@@ -164,7 +164,9 @@ class TestInstallAssets:
             (src_dir / "rule1.md").write_text("# Rule 1")
             (dest_dir / "rule1.md").write_text("# Existing")
 
-            count = installer.install_assets(src_dir, dest_dir, use_symlinks=True, clean=True)
+            count = installer.install_assets(
+                src_dir, dest_dir, use_symlinks=True, clean=True
+            )
 
             assert count == 1
             assert (dest_dir / "rule1.md").is_symlink()
@@ -251,8 +253,14 @@ class TestMain:
             target_dir = Path(tmpdir) / "target"
             target_dir.mkdir()
 
-            with patch.object(sys, "argv", ["installer.py", str(target_dir), "--harness", "default"]), \
-                 patch("builtins.print"):
+            with (
+                patch.object(
+                    sys,
+                    "argv",
+                    ["installer.py", str(target_dir), "--harness", "default"],
+                ),
+                patch("builtins.print"),
+            ):
                 installer.main()
 
             assert (target_dir / ".agents" / "rules").exists()
@@ -264,8 +272,14 @@ class TestMain:
             target_dir = Path(tmpdir) / "target"
             target_dir.mkdir()
 
-            with patch.object(sys, "argv", ["installer.py", str(target_dir), "--harness", "opencode"]), \
-                 patch("builtins.print"):
+            with (
+                patch.object(
+                    sys,
+                    "argv",
+                    ["installer.py", str(target_dir), "--harness", "opencode"],
+                ),
+                patch("builtins.print"),
+            ):
                 installer.main()
 
             assert (target_dir / ".opencode" / "instructions").exists()
@@ -277,8 +291,14 @@ class TestMain:
             target_dir = Path(tmpdir) / "target"
             target_dir.mkdir()
 
-            with patch.object(sys, "argv", ["installer.py", str(target_dir), "--harness", "default", "--copy"]), \
-                 patch("builtins.print"):
+            with (
+                patch.object(
+                    sys,
+                    "argv",
+                    ["installer.py", str(target_dir), "--harness", "default", "--copy"],
+                ),
+                patch("builtins.print"),
+            ):
                 installer.main()
 
             assert (target_dir / ".agents" / "rules").is_dir()
@@ -290,13 +310,29 @@ class TestMain:
             target_dir = Path(tmpdir) / "target"
             target_dir.mkdir()
             (target_dir / ".agents" / "rules").mkdir(parents=True)
-            (target_dir / ".agents" / "rules" / "basic-directives.md").write_text("old content")
+            (target_dir / ".agents" / "rules" / "basic-directives.md").write_text(
+                "old content"
+            )
 
-            with patch.object(sys, "argv", ["installer.py", str(target_dir), "--harness", "default", "--clean"]), \
-                 patch("builtins.print"):
+            with (
+                patch.object(
+                    sys,
+                    "argv",
+                    [
+                        "installer.py",
+                        str(target_dir),
+                        "--harness",
+                        "default",
+                        "--clean",
+                    ],
+                ),
+                patch("builtins.print"),
+            ):
                 installer.main()
 
-            assert (target_dir / ".agents" / "rules" / "basic-directives.md").is_symlink()
+            assert (
+                target_dir / ".agents" / "rules" / "basic-directives.md"
+            ).is_symlink()
 
     def test_main_init_config(self):
         """Test main with --init-config flag."""
@@ -304,8 +340,12 @@ class TestMain:
             target_dir = Path(tmpdir) / "target"
             target_dir.mkdir()
 
-            with patch.object(sys, "argv", ["installer.py", str(target_dir), "--init-config"]), \
-                 patch("builtins.print"):
+            with (
+                patch.object(
+                    sys, "argv", ["installer.py", str(target_dir), "--init-config"]
+                ),
+                patch("builtins.print"),
+            ):
                 installer.main()
 
             assert (target_dir / ".copilot-collections.yaml").exists()
@@ -316,8 +356,7 @@ class TestArgumentParsing:
 
     def test_default_harness(self):
         """Test default harness is 'default'."""
-        with patch.object(sys, "argv", ["installer.py", "."]), \
-             patch("installer.main"):
+        with patch.object(sys, "argv", ["installer.py", "."]), patch("installer.main"):
             pass
 
     def test_invalid_harness(self):
