@@ -1,10 +1,10 @@
 # Makefile for smarter-agents
 
 PROJECT := smarter-agents
-PYTHON_SOURCES := installer.py
+PYTHON_SOURCES := installer.py skills/context-checkpoint/scripts/checkpoint.py tests/test_checkpoint.py
 YAML_SOURCES := collections.yaml .yamllint.yaml .coderabbit.yaml .pre-commit-config.yaml .github/workflows/*.yaml
-JSON_SOURCES := .pymarkdown.json .github/renovate.json
-MD_SOURCES := README.md rules/*.md
+JSON_SOURCES := .pymarkdown.json .github/renovate.json skills/context-checkpoint/schemas/checkpoint.schema.json skills/context-checkpoint/templates/checkpoint.template.json
+MD_SOURCES := README.md rules/*.md skills/context-checkpoint/SKILL.md skills/context-checkpoint/templates/SESSION.template.md
 WORKFLOW_SOURCES := .github/workflows/*.yaml
 
 .DEFAULT_GOAL := help
@@ -28,7 +28,9 @@ lint-yaml: ## Check YAML files with yamlfmt and yamllint
 .PHONY: lint-json
 lint-json: ## Validate JSON files
 	@echo "==> Validating JSON files..."
-	python3 -m json.tool $(JSON_SOURCES) > /dev/null
+	@for f in $(JSON_SOURCES); do \
+		python3 -m json.tool "$$f" > /dev/null || exit 1; \
+	done
 
 .PHONY: lint-md
 lint-md: ## Check Markdown files with pymarkdownlnt
@@ -85,11 +87,18 @@ setup-hooks: ## Install git hooks using prek
 	@echo "==> Installing git hooks with prek..."
 	uv tool run prek install
 
+.PHONY: test-unit
+test-unit: ## Run unit tests
+	@echo "==> Running unit tests..."
+	python3 -m unittest discover tests
+	@echo "Unit tests passed."
+
 .PHONY: test-smoke
 test-smoke: ## Run smoke tests
 	@echo "==> Running smoke tests..."
 	python3 installer.py --help > /dev/null
+	python3 skills/context-checkpoint/scripts/checkpoint.py --help > /dev/null
 	@echo "Smoke tests passed."
 
 .PHONY: test
-test: test-smoke ## Run tests (alias for test-smoke)
+test: test-unit test-smoke ## Run all tests (unit and smoke)
