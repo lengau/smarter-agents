@@ -4,6 +4,7 @@ PROJECT := smarter-agents
 PYTHON_SOURCES := installer.py skills/context-checkpoint/scripts/checkpoint.py tests/test_checkpoint.py
 YAML_SOURCES := collections.yaml .yamllint.yaml .coderabbit.yaml .pre-commit-config.yaml .github/workflows/*.yaml
 JSON_SOURCES := .pymarkdown.json .github/renovate.json skills/context-checkpoint/schemas/checkpoint.schema.json skills/context-checkpoint/templates/checkpoint.template.json
+JSON_SCHEMAS := skills/context-checkpoint/schemas/checkpoint.schema.json
 MD_SOURCES := README.md rules/*.md skills/context-checkpoint/SKILL.md skills/context-checkpoint/templates/SESSION.template.md
 WORKFLOW_SOURCES := .github/workflows/*.yaml
 
@@ -26,11 +27,21 @@ lint-yaml: ## Check YAML files with yamlfmt and yamllint
 	yamlfmt -lint .
 
 .PHONY: lint-json
-lint-json: ## Validate JSON files
-	@echo "==> Validating JSON files..."
+lint-json: lint-json-syntax lint-json-schema ## Validate JSON syntax and JSON schemas
+
+.PHONY: lint-json-syntax
+lint-json-syntax: ## Validate JSON syntax
+	@echo "==> Validating JSON syntax..."
 	@for f in $(JSON_SOURCES); do \
 		python3 -m json.tool "$$f" > /dev/null || exit 1; \
 	done
+
+.PHONY: lint-json-schema
+lint-json-schema: ## Validate JSON schemas against Draft 7 metaschema and validate templates
+	@echo "==> Validating JSON metaschema with check-jsonschema..."
+	uv tool run check-jsonschema --check-metaschema $(JSON_SCHEMAS)
+	@echo "==> Validating JSON templates against schema..."
+	uv tool run check-jsonschema --schemafile skills/context-checkpoint/schemas/checkpoint.schema.json skills/context-checkpoint/templates/checkpoint.template.json
 
 .PHONY: lint-md
 lint-md: ## Check Markdown files with pymarkdownlnt
@@ -42,7 +53,7 @@ lint-python: ## Check Python files with ruff and ty
 	@echo "==> Running ruff check..."
 	ruff check $(PYTHON_SOURCES)
 	@echo "==> Running ty type check..."
-	uv tool run ty check $(PYTHON_SOURCES)
+	uv tool run --with pytest ty check $(PYTHON_SOURCES)
 
 .PHONY: lint-workflows
 lint-workflows: ## Check GitHub Actions workflows with actionlint and zizmor
@@ -88,9 +99,9 @@ setup-hooks: ## Install git hooks using prek
 	uv tool run prek install
 
 .PHONY: test-unit
-test-unit: ## Run unit tests
-	@echo "==> Running unit tests..."
-	python3 -m unittest discover tests
+test-unit: ## Run unit tests with pytest
+	@echo "==> Running unit tests with pytest..."
+	uv tool run pytest tests
 	@echo "Unit tests passed."
 
 .PHONY: test-smoke
