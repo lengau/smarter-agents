@@ -15,27 +15,30 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - name: Set up Python 3.14
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
-        with:
-          python-version: "3.14"
       - name: Set up uv
         uses: astral-sh/setup-uv@f94e4d16183a31c5180f9b69994c653fa652395d # v5.3.0
         with:
           enable-cache: true
       - name: Install tools and binaries
         run: |
-          pip install --no-cache-dir yamllint ruff
+          pip install --no-cache-dir yamllint ruff==0.8.4
           mkdir -p "$HOME/.local/bin"
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-          YAMLFMT_VER=$(curl -s "https://api.github.com/repos/google/yamlfmt/releases/latest" | \
-            grep -Po '"tag_name": "v\K[^"]*')
-          YAMLFMT_URL="https://github.com/google/yamlfmt/releases/download/v${YAMLFMT_VER}/yamlfmt_${YAMLFMT_VER}_Linux_x86_64.tar.gz"
-          curl -sSL "$YAMLFMT_URL" | tar -xz -C "$$HOME/.local/bin" yamlfmt
-          chmod +x "$$HOME/.local/bin/yamlfmt"
-          ACTIONLINT_VER=$(curl -s "https://api.github.com/repos/rhysd/actionlint/releases/latest" | \
-            grep -Po '"tag_name": "v\K[^"]*')
-          curl -sSfL "https://raw.githubusercontent.com/rhysd/actionlint/v${ACTIONLINT_VER}/install.sh" | sh -s -- -b "$HOME/.local/bin"
+          # Install yamlfmt via go
+          go install github.com/google/yamlfmt/cmd/yamlfmt@v0.13.0
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          # Install actionlint via installer script
+          ACTIONLINT_VER=$(curl -s "https://api.github.com/repos/rhysd/actionlint/releases/latest" |
+            grep -Po '"tag_name": "\K[^"]*')
+          # Fallback to v1.7.12 if detection fails
+          ACTIONLINT_VER=${ACTIONLINT_VER:-v1.7.12}
+          ACTIONLINT_URL="https://raw.githubusercontent.com/rhysd/actionlint/v${ACTIONLINT_VER}/install.sh"
+          curl -sSfL "$ACTIONLINT_URL" \
+            | sh -s -- -b "$HOME/.local/bin"
+      - name: Verify tool installation
+        run: |
+          yamlfmt -version
+          ruff --version
+          actionlint -version
       - name: Run make lint
         run: make lint
       - name: Run make test
