@@ -103,5 +103,10 @@ test-smoke: ## Run smoke tests
 	python3 installer.py --help > /dev/null
 	@echo "Smoke tests passed."
 
+.PHONY: test-py
+test-py: ## Run Python unit tests across skill scripts with pytest
+	@echo "==> Running pytest..."
+	uv tool run pytest skills/
+
 .PHONY: test
-test: test-smoke ## Run tests (alias for test-smoke)
+test: test-smoke test-py ## Run all tests (smoke + Python unit tests)
