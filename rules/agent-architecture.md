@@ -14,6 +14,8 @@ Agents running in modern asynchronous environments receive messages and event tr
 - **Halt and Await**: After launching a background command or spawning a subagent, simply proceed with other work or
   halt execution (stop calling tools). The system will automatically wake you up when a task completes or an event
   occurs.
+- **Completion Barrier**: Do not report task completion while a required background command or subagent is pending.
+  Resume dependent work only after its terminal event is received and its result is checked.
 
 ## 2. Subagent Delegation
 
