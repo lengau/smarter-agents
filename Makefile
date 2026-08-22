@@ -82,7 +82,7 @@ format-json: ## Format JSON files
 	done
 
 .PHONY: format-md
-format-md: ## Format Markdown files with pymarkdownlnt
+format-md: ## Format MarkDown files with pymarkdownlnt
 	@echo "==> Formatting Markdown with pymarkdownlnt..."
 	uv tool run pymarkdownlnt --config .pymarkdown.json fix .
 
@@ -102,6 +102,11 @@ test-smoke: ## Run smoke tests
 	@echo "==> Running smoke tests..."
 	python3 installer.py --help > /dev/null
 	@echo "Smoke tests passed."
+
+.PHONY: test-py
+test-py: ## Run Python unit tests across skill scripts with pytest
+	@echo "==> Running pytest..."
+	uv tool run pytest skills/
 
 .PHONY: test
 test: test-smoke test-py ## Run all tests (smoke + Python unit tests)
