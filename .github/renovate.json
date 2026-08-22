@@ -1,0 +1,34 @@
+{
+    "plugins": {
+        "heading-style": {
+            "enabled": true,
+            "style": "atx"
+        },
+        "commands-show-output": {
+            "enabled": false
+        },
+        "no-missing-space-atx": {
+            "enabled": true
+        },
+        "line-length": {
+            "enabled": true,
+            "line_length": 120,
+            "code_block_line_length": 120,
+            "tables": false
+        },
+        "first-line-heading": {
+            "enabled": false
+        },
+        "blanks-around-headings": {
+            "enabled": true
+        },
+        "blanks-around-lists": {
+            "enabled": true
+        }
+    },
+    "extensions": {
+        "front-matter": {
+            "enabled": true
+        }
+    }
+}

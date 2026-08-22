@@ -3,7 +3,7 @@
 PROJECT := smarter-agents
 PYTHON_SOURCES := installer.py
 YAML_SOURCES := collections.yaml .yamllint.yaml .coderabbit.yaml .pre-commit-config.yaml .github/workflows/*.yaml
-JSON_SOURCES := .pymarkdown.json
+JSON_SOURCES := .pymarkdown.json .github/renovate.json
 MD_SOURCES := README.md rules/*.md
 WORKFLOW_SOURCES := .github/workflows/*.yaml
 
