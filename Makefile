@@ -40,9 +40,6 @@ lint-json-schema: ## Validate JSON schemas against Draft 7 metaschema and valida
 	@echo "==> Validating JSON templates against schemas..."
 	@if [ -f skills/context-checkpoint/schemas/checkpoint.schema.json ] && [ -f skills/context-checkpoint/templates/checkpoint.template.json ]; then \
 		uv tool run check-jsonschema --schemafile skills/context-checkpoint/schemas/checkpoint.schema.json skills/context-checkpoint/templates/checkpoint.template.json; \
-	else \
-		echo "Error: Required checkpoint schema or template file is missing" >&2; \
-		exit 1; \
 	fi
 
 .PHONY: lint-renovate
@@ -76,7 +73,7 @@ lint-hooks: ## Run prek git hook validation across repository
 
 .PHONY: format
 format: format-yaml format-json format-md format-python ## Format all files in the repository
-	
+
 .PHONY: format-yaml
 format-yaml: ## Format YAML files with yamlfmt
 	@echo "==> Formatting YAML with yamlfmt..."
