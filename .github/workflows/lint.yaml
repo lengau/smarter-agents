@@ -1,0 +1,58 @@
+name: Lint & Quality Checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  lint:
+    name: Lint & Style Verification
+    runs-on: ubuntu-slim
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+      - name: Install tools and binaries
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          uv tool install yamllint
+          uv tool install ruff
+          mkdir -p "$HOME/.local/bin"
+          # Determine architectures
+          UNAME_ARCH=$(uname -m)
+          case "$UNAME_ARCH" in
+            x86_64)
+              YAMLFMT_ARCH="x86_64"
+              ACTIONLINT_ARCH="amd64"
+              ;;
+            aarch64)
+              YAMLFMT_ARCH="arm64"
+              ACTIONLINT_ARCH="arm64"
+              ;;
+            *)
+              echo "Unsupported architecture: $UNAME_ARCH" && exit 1
+              ;;
+          esac
+          # Install yamlfmt via gh CLI
+          gh release download -R google/yamlfmt -p "*_Linux_${YAMLFMT_ARCH}.tar.gz" -O - \
+            | tar -xz -C "$HOME/.local/bin" yamlfmt
+          # Install actionlint via gh CLI
+          gh release download -R rhysd/actionlint -p "*_linux_${ACTIONLINT_ARCH}.tar.gz" -O - \
+            | tar -xz -C "$HOME/.local/bin" actionlint
+      - name: Verify tool installation
+        run: |
+          yamlfmt -version
+          ruff --version
+          actionlint -version
+      - name: Run make lint
+        run: make lint
+      - name: Run make test-smoke
+        run: make test-smoke
