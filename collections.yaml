@@ -16,6 +16,7 @@ collections:
       - "rules/tool-selection.md"
       - "rules/communication-formatting.md"
       - "rules/agent-architecture.md"
+      - "rules/system-prompt-extensions.md"
     skills:
       - "skills/diff-auditor"
       - "skills/patch-repair"
@@ -31,6 +32,7 @@ collections:
       - "rules/tool-selection.md"
       - "rules/communication-formatting.md"
       - "rules/agent-architecture.md"
+      - "rules/system-prompt-extensions.md"
   - name: "skills-only"
     description: "Operational skills without strict behavioral rules"
     skills:
