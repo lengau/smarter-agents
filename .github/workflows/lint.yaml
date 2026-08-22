@@ -24,32 +24,33 @@ jobs:
           uv tool install yamllint
           uv tool install ruff
           mkdir -p "$HOME/.local/bin"
+          # Determine architectures
+          UNAME_ARCH=$(uname -m)
+          case "$UNAME_ARCH" in
+            x86_64)
+              YAMLFMT_ARCH="x86_64"
+              ACTIONLINT_ARCH="amd64"
+              ;;
+            aarch64)
+              YAMLFMT_ARCH="arm64"
+              ACTIONLINT_ARCH="arm64"
+              ;;
+            *)
+              echo "Unsupported architecture: $UNAME_ARCH" && exit 1
+              ;;
+          esac
           # Install yamlfmt via gh CLI
-          # Determine architecture
-          ARCH=$(uname -m)
-          # Ensure supported architecture (x86_64 or aarch64)
-          if [ "$ARCH" != "x86_64" ] && [ "$ARCH" != "aarch64" ]; then
-            echo "Unsupported architecture: $ARCH" && exit 1
-          fi
-          # Get latest yamlfmt version tag
           YAMLFMT_VER=$(gh release list -R google/yamlfmt --limit 1 | awk '{print $1}')
-          # Download the appropriate tarball
-          gh release download "$YAMLFMT_VER" -R google/yamlfmt -p "yamlfmt_*_Linux_${ARCH}.tar.gz"
-          tar -xzf "yamlfmt_*_Linux_${ARCH}.tar.gz" yamlfmt
+          gh release download "$YAMLFMT_VER" -R google/yamlfmt -p "yamlfmt_*_Linux_${YAMLFMT_ARCH}.tar.gz"
+          tar -xzf "yamlfmt_*_Linux_${YAMLFMT_ARCH}.tar.gz" yamlfmt
           mv yamlfmt "$HOME/.local/bin/"
-          # Clean up downloaded archive
-          rm "yamlfmt_*_Linux_${ARCH}.tar.gz"
-          # Install jq for JSON parsing
-          sudo apt-get update && sudo apt-get install -y jq
-          # Install actionlint via installer script
-          ACTIONLINT_VER=$(curl -sSf "https://api.github.com/repos/rhysd/actionlint/releases/latest" \
-              | jq -r '.tag_name // empty')
-          if [ -z "$ACTIONLINT_VER" ] || [ "$ACTIONLINT_VER" = "null" ]; then
-              ACTIONLINT_VER="v1.7.12"
-          fi
-          ACTIONLINT_URL="https://raw.githubusercontent.com/rhysd/actionlint/${ACTIONLINT_VER}/install.sh"
-          curl -sSfL "$ACTIONLINT_URL" \
-            | sh -s -- -b "$HOME/.local/bin"
+          rm "yamlfmt_*_Linux_${YAMLFMT_ARCH}.tar.gz"
+          # Install actionlint via gh CLI
+          ACTIONLINT_VER=$(gh release list -R rhysd/actionlint --limit 1 | awk '{print $1}')
+          gh release download "$ACTIONLINT_VER" -R rhysd/actionlint -p "actionlint_*_linux_${ACTIONLINT_ARCH}.tar.gz"
+          tar -xzf "actionlint_*_linux_${ACTIONLINT_ARCH}.tar.gz" actionlint
+          mv actionlint "$HOME/.local/bin/"
+          rm "actionlint_*_linux_${ACTIONLINT_ARCH}.tar.gz"
       - name: Verify tool installation
         run: |
           yamlfmt -version

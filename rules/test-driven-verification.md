@@ -9,7 +9,8 @@ description: 'Mandatory verification gate: agents must execute automated build, 
 
 1. **Mandatory Pre-Commit Verification Gate**:
    - You must **NEVER commit code or declare a task complete** without actively executing the workspace's build,
-     linter, and test suite and verifying that all checks pass. Prefer fixing lint issues with an auto-formatter to editing the file yourself.
+     linter, and test suite and verifying that all checks pass. Prefer fixing lint issues with an auto-formatter to
+     editing the file yourself.
    - If tests or linters exist in the repository, their execution is mandatory, not optional. "Looks correct" or
      theoretical verification is strictly forbidden.
 
