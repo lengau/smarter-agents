@@ -5,7 +5,8 @@ Unit tests for audit_diff.py
 
 import re
 import unittest
-from audit_diff import audit_diff, parse_diff_files
+
+from audit_diff import audit_diff
 
 
 class TestAuditDiff(unittest.TestCase):
@@ -88,7 +89,9 @@ index e69de29..4b825dc 100644
 """
         numstat = {"src/service.py": (1, 6)}
         res = audit_diff(sample_diff, numstat)
-        self.assertTrue(res["summary"]["passed"])  # Docstring deletions are warnings by default
+        self.assertTrue(
+            res["summary"]["passed"]
+        )  # Docstring deletions are warnings by default
         self.assertEqual(len(res["warnings"]), 1)
         self.assertEqual(res["warnings"][0]["type"], "DOCSTRING_DELETION")
 

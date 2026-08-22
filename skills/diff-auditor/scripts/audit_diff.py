@@ -12,12 +12,10 @@ Audits git diffs for common agent and developer pitfalls before committing or PR
 
 import argparse
 import json
-import os
 import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 # Color output helpers
 GREEN = "\033[92m"
@@ -30,27 +28,64 @@ RESET = "\033[0m"
 # Patterns for stray debug statements by file extension
 DEBUG_PATTERNS = {
     r"\.(py|pyi)$": [
-        (re.compile(r"^\+\s*print\(.*?\)", re.IGNORECASE), "Stray Python `print(...)` statement"),
-        (re.compile(r"^\+\s*(import\s+pdb|pdb\.set_trace\(\)|breakpoint\(\))", re.IGNORECASE), "Python breakpoint/debugger statement"),
-        (re.compile(r"^\+\s*ic\(.*?\)", re.IGNORECASE), "IceCream `ic(...)` debug statement"),
+        (
+            re.compile(r"^\+\s*print\(.*?\)", re.IGNORECASE),
+            "Stray Python `print(...)` statement",
+        ),
+        (
+            re.compile(
+                r"^\+\s*(import\s+pdb|pdb\.set_trace\(\)|breakpoint\(\))", re.IGNORECASE
+            ),
+            "Python breakpoint/debugger statement",
+        ),
+        (
+            re.compile(r"^\+\s*ic\(.*?\)", re.IGNORECASE),
+            "IceCream `ic(...)` debug statement",
+        ),
     ],
     r"\.(js|jsx|ts|tsx|mjs|cjs)$": [
-        (re.compile(r"^\+\s*console\.(log|debug|trace|dir)\(.*?\)", re.IGNORECASE), "Stray JS/TS `console.log(...)` statement"),
-        (re.compile(r"^\+\s*debugger\s*;?", re.IGNORECASE), "JavaScript `debugger;` statement"),
+        (
+            re.compile(r"^\+\s*console\.(log|debug|trace|dir)\(.*?\)", re.IGNORECASE),
+            "Stray JS/TS `console.log(...)` statement",
+        ),
+        (
+            re.compile(r"^\+\s*debugger\s*;?", re.IGNORECASE),
+            "JavaScript `debugger;` statement",
+        ),
     ],
     r"\.(go)$": [
-        (re.compile(r"^\+\s*(fmt\.Print|fmt\.Println|fmt\.Printf)\(.*?\)", re.IGNORECASE), "Stray Go `fmt.Print*` statement"),
+        (
+            re.compile(
+                r"^\+\s*(fmt\.Print|fmt\.Println|fmt\.Printf)\(.*?\)", re.IGNORECASE
+            ),
+            "Stray Go `fmt.Print*` statement",
+        ),
     ],
     r"\.(rb)$": [
-        (re.compile(r"^\+\s*(puts|p|pp)\s+", re.IGNORECASE), "Stray Ruby `puts/p/pp` statement"),
-        (re.compile(r"^\+\s*binding\.(pry|irb)", re.IGNORECASE), "Ruby `binding.pry/irb` statement"),
+        (
+            re.compile(r"^\+\s*(puts|p|pp)\s+", re.IGNORECASE),
+            "Stray Ruby `puts/p/pp` statement",
+        ),
+        (
+            re.compile(r"^\+\s*binding\.(pry|irb)", re.IGNORECASE),
+            "Ruby `binding.pry/irb` statement",
+        ),
     ],
     r"\.(rs)$": [
-        (re.compile(r"^\+\s*println!\s*\(.*?\)", re.IGNORECASE), "Stray Rust `println!` statement"),
-        (re.compile(r"^\+\s*dbg!\s*\(.*?\)", re.IGNORECASE), "Stray Rust `dbg!` statement"),
+        (
+            re.compile(r"^\+\s*println!\s*\(.*?\)", re.IGNORECASE),
+            "Stray Rust `println!` statement",
+        ),
+        (
+            re.compile(r"^\+\s*dbg!\s*\(.*?\)", re.IGNORECASE),
+            "Stray Rust `dbg!` statement",
+        ),
     ],
     r"\.(php)$": [
-        (re.compile(r"^\+\s*(var_dump|print_r|dd)\(.*?\)", re.IGNORECASE), "Stray PHP dump statement"),
+        (
+            re.compile(r"^\+\s*(var_dump|print_r|dd)\(.*?\)", re.IGNORECASE),
+            "Stray PHP dump statement",
+        ),
     ],
 }
 
@@ -59,41 +94,43 @@ SENSITIVE_PATTERNS = [
     re.compile(r"(^|/)\.env(\.[a-zA-Z0-9_-]+)?$"),
     re.compile(r"\.(key|pem|pkcs12|pfx)$", re.IGNORECASE),
     re.compile(r"(^|/)(id_rsa|id_ed25519)$", re.IGNORECASE),
-    re.compile(r"(^|/)(secrets|credentials|service-account|auth_token)\.(json|yaml|yml|txt)$", re.IGNORECASE),
+    re.compile(
+        r"(^|/)(secrets|credentials|service-account|auth_token)\.(json|yaml|yml|txt)$",
+        re.IGNORECASE,
+    ),
 ]
 
 # Patterns representing docstrings / comments in diff deletion lines (starting with '-')
 DOCSTRING_DELETION_PATTERNS = [
     re.compile(r"^-\s*('''|\"\"\")"),  # Python docstring triple-quotes
-    re.compile(r"^-\s*\*\s+.*"),        # JSDoc / C-style multi-line comment body
-    re.compile(r"^-\s*/\*\*"),          # JSDoc start
-    re.compile(r"^-\s*///\s+.*"),       # Rust / C# doc comments
-    re.compile(r"^-\s*#\s+.*"),         # Python/Shell/Ruby comments
-    re.compile(r"^-\s*//\s+.*"),        # JS/TS/Go/C++ single line comments
+    re.compile(r"^-\s*\*\s+.*"),  # JSDoc / C-style multi-line comment body
+    re.compile(r"^-\s*/\*\*"),  # JSDoc start
+    re.compile(r"^-\s*///\s+.*"),  # Rust / C# doc comments
+    re.compile(r"^-\s*#\s+.*"),  # Python/Shell/Ruby comments
+    re.compile(r"^-\s*//\s+.*"),  # JS/TS/Go/C++ single line comments
 ]
 
 
-def run_cmd(cmd: List[str], cwd: Optional[Path] = None) -> Tuple[int, str, str]:
+def run_cmd(cmd: list[str], cwd: Path | None = None) -> tuple[int, str, str]:
     """Execute a subprocess command and return (exit_code, stdout, stderr)."""
     try:
         proc = subprocess.run(
             cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             text=True,
             cwd=str(cwd) if cwd else None,
             check=False,
         )
         return proc.returncode, proc.stdout, proc.stderr
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError) as e:
         return 1, "", str(e)
 
 
 def get_git_diff(
     staged: bool = False,
-    base: Optional[str] = None,
-    commit_range: Optional[str] = None,
-    paths: Optional[List[str]] = None,
+    base: str | None = None,
+    commit_range: str | None = None,
+    paths: list[str] | None = None,
 ) -> str:
     """Retrieve git diff based on provided targeting options."""
     cmd = ["git", "diff", "--no-color"]
@@ -103,7 +140,7 @@ def get_git_diff(
         cmd.append(commit_range)
     elif base:
         cmd.append(base)
-    
+
     if paths:
         cmd.append("--")
         cmd.extend(paths)
@@ -116,10 +153,10 @@ def get_git_diff(
 
 def get_git_numstat(
     staged: bool = False,
-    base: Optional[str] = None,
-    commit_range: Optional[str] = None,
-    paths: Optional[List[str]] = None,
-) -> Dict[str, Tuple[int, int]]:
+    base: str | None = None,
+    commit_range: str | None = None,
+    paths: list[str] | None = None,
+) -> dict[str, tuple[int, int]]:
     """Get insertion and deletion counts per file using git diff --numstat."""
     cmd = ["git", "diff", "--numstat"]
     if staged:
@@ -133,7 +170,7 @@ def get_git_numstat(
         cmd.append("--")
         cmd.extend(paths)
 
-    code, out, err = run_cmd(cmd)
+    code, out, _err = run_cmd(cmd)
     if code != 0:
         return {}
 
@@ -149,10 +186,21 @@ def get_git_numstat(
     return stats
 
 
-def parse_diff_files(raw_diff: str) -> List[Dict]:
+from typing import TypedDict
+
+
+class ParsedDiffFile(TypedDict):
+    old_path: str
+    new_path: str
+    lines: list[str]
+    added_lines: list[str]
+    deleted_lines: list[str]
+
+
+def parse_diff_files(raw_diff: str) -> list[ParsedDiffFile]:
     """Parse unified diff output into structured per-file records."""
-    files = []
-    current_file = None
+    files: list[ParsedDiffFile] = []
+    current_file: ParsedDiffFile | None = None
     file_header_pattern = re.compile(r"^diff --git a/(.*?) b/(.*)$")
 
     for line in raw_diff.splitlines():
@@ -190,19 +238,21 @@ def is_test_or_cli_file(filepath: str) -> bool:
     cli_patterns = [
         r"(^|/)(cli/|bin/|scripts/.*cli.*\.py$)",
     ]
-    return any(re.search(pat, filepath, re.IGNORECASE) for pat in test_patterns + cli_patterns)
+    return any(
+        re.search(pat, filepath, re.IGNORECASE) for pat in test_patterns + cli_patterns
+    )
 
 
 def audit_diff(
     diff_text: str,
-    numstat: Dict[str, Tuple[int, int]],
-    allowed_patterns: Optional[List[re.Pattern]] = None,
+    numstat: dict[str, tuple[int, int]],
+    allowed_patterns: list[re.Pattern] | None = None,
     max_churn_lines: int = 500,
     check_docstrings: bool = True,
     check_debug: bool = True,
     check_churn: bool = True,
     check_sensitive: bool = True,
-) -> Dict:
+) -> dict:
     """Run all audit checks against the parsed git diff."""
     parsed_files = parse_diff_files(diff_text)
     issues = []
@@ -213,38 +263,46 @@ def audit_diff(
 
     for f in parsed_files:
         filepath = f["new_path"] if f["new_path"] != "/dev/null" else f["old_path"]
-        added_count, deleted_count = numstat.get(filepath, (len(f["added_lines"]), len(f["deleted_lines"])))
+        added_count, deleted_count = numstat.get(
+            filepath, (len(f["added_lines"]), len(f["deleted_lines"]))
+        )
 
         # 1. Check sensitive files
         if check_sensitive:
             for pat in SENSITIVE_PATTERNS:
                 if pat.search(filepath):
-                    issues.append({
-                        "file": filepath,
-                        "type": "SENSITIVE_FILE",
-                        "severity": "ERROR",
-                        "message": f"Sensitive or credential file staged/modified: {filepath}",
-                    })
+                    issues.append(
+                        {
+                            "file": filepath,
+                            "type": "SENSITIVE_FILE",
+                            "severity": "ERROR",
+                            "message": f"Sensitive or credential file staged/modified: {filepath}",
+                        }
+                    )
 
         # 2. Check scope restrictions (if allowed patterns provided)
         if allowed_patterns:
             matched = any(pat.search(filepath) for pat in allowed_patterns)
             if not matched:
-                warnings.append({
-                    "file": filepath,
-                    "type": "OUT_OF_SCOPE",
-                    "severity": "WARNING",
-                    "message": f"File modification outside allowed scope: {filepath}",
-                })
+                warnings.append(
+                    {
+                        "file": filepath,
+                        "type": "OUT_OF_SCOPE",
+                        "severity": "WARNING",
+                        "message": f"File modification outside allowed scope: {filepath}",
+                    }
+                )
 
         # 3. Check excessive line churn
         if check_churn and (added_count + deleted_count > max_churn_lines):
-            warnings.append({
-                "file": filepath,
-                "type": "EXCESSIVE_CHURN",
-                "severity": "WARNING",
-                "message": f"High line churn in {filepath} (+{added_count}/-{deleted_count} lines > threshold {max_churn_lines}). Ensure you did not overwrite the entire file unintentionally.",
-            })
+            warnings.append(
+                {
+                    "file": filepath,
+                    "type": "EXCESSIVE_CHURN",
+                    "severity": "WARNING",
+                    "message": f"High line churn in {filepath} (+{added_count}/-{deleted_count} lines > threshold {max_churn_lines}). Ensure you did not overwrite the entire file unintentionally.",
+                }
+            )
 
         # 4. Check stray debug statements in added lines
         if check_debug and not is_test_or_cli_file(filepath):
@@ -252,17 +310,28 @@ def audit_diff(
                 if re.search(ext_pat, filepath, re.IGNORECASE):
                     for line in f["added_lines"]:
                         # Allow explicit suppression comments
-                        if any(tag in line for tag in ("# noqa", "# debug-ok", "// noqa", "// debug-ok", "/* noqa */")):
+                        if any(
+                            tag in line
+                            for tag in (
+                                "# noqa",
+                                "# debug-ok",
+                                "// noqa",
+                                "// debug-ok",
+                                "/* noqa */",
+                            )
+                        ):
                             continue
                         for pattern, desc in rules:
                             if pattern.search(line):
-                                issues.append({
-                                    "file": filepath,
-                                    "type": "DEBUG_STATEMENT",
-                                    "severity": "ERROR",
-                                    "line": line.lstrip("+").strip(),
-                                    "message": f"Found stray debug statement in {filepath}: '{line.lstrip('+').strip()}' ({desc})",
-                                })
+                                issues.append(
+                                    {
+                                        "file": filepath,
+                                        "type": "DEBUG_STATEMENT",
+                                        "severity": "ERROR",
+                                        "line": line.lstrip("+").strip(),
+                                        "message": f"Found stray debug statement in {filepath}: '{line.lstrip('+').strip()}' ({desc})",
+                                    }
+                                )
 
         # 5. Check unintentional docstring or comment mass deletion
         if check_docstrings:
@@ -274,14 +343,19 @@ def audit_diff(
                         break
 
             # If more than 3 docstring/comment lines were deleted, or a high ratio
-            if len(deleted_doc_lines) >= 3 and len(deleted_doc_lines) > len(f["added_lines"]) * 0.5:
-                warnings.append({
-                    "file": filepath,
-                    "type": "DOCSTRING_DELETION",
-                    "severity": "WARNING",
-                    "deleted_count": len(deleted_doc_lines),
-                    "message": f"Possible accidental deletion of {len(deleted_doc_lines)} docstring/comment lines in {filepath}. Verify comments were not stripped accidentally.",
-                })
+            if (
+                len(deleted_doc_lines) >= 3
+                and len(deleted_doc_lines) > len(f["added_lines"]) * 0.5
+            ):
+                warnings.append(
+                    {
+                        "file": filepath,
+                        "type": "DOCSTRING_DELETION",
+                        "severity": "WARNING",
+                        "deleted_count": len(deleted_doc_lines),
+                        "message": f"Possible accidental deletion of {len(deleted_doc_lines)} docstring/comment lines in {filepath}. Verify comments were not stripped accidentally.",
+                    }
+                )
 
     return {
         "summary": {
@@ -297,7 +371,7 @@ def audit_diff(
     }
 
 
-def print_report(audit_result: Dict, verbose: bool = False, use_color: bool = True):
+def print_report(audit_result: dict, verbose: bool = False, use_color: bool = True):
     """Print human-readable formatted report."""
     summary = audit_result["summary"]
     errors = audit_result["errors"]
@@ -306,12 +380,13 @@ def print_report(audit_result: Dict, verbose: bool = False, use_color: bool = Tr
     c_green = GREEN if use_color else ""
     c_red = RED if use_color else ""
     c_yellow = YELLOW if use_color else ""
-    c_blue = BLUE if use_color else ""
     c_bold = BOLD if use_color else ""
     c_reset = RESET if use_color else ""
 
     sys.stdout.write(f"\n{c_bold}=== Git Diff Audit Report ==={c_reset}\n")
-    sys.stdout.write(f"Files Modified: {summary['files_changed']} (+{summary['total_added']} / -{summary['total_deleted']} lines)\n")
+    sys.stdout.write(
+        f"Files Modified: {summary['files_changed']} (+{summary['total_added']} / -{summary['total_deleted']} lines)\n"
+    )
     sys.stdout.write(f"Errors: {len(errors)} | Warnings: {len(warnings)}\n\n")
 
     if errors:
@@ -321,18 +396,26 @@ def print_report(audit_result: Dict, verbose: bool = False, use_color: bool = Tr
         sys.stdout.write("\n")
 
     if warnings:
-        sys.stdout.write(f"{c_yellow}{c_bold}⚠️  WARNINGS (Review Carefully):{c_reset}\n")
+        sys.stdout.write(
+            f"{c_yellow}{c_bold}⚠️  WARNINGS (Review Carefully):{c_reset}\n"
+        )
         for w in warnings:
             sys.stdout.write(f"  {c_yellow}• [{w['type']}] {w['message']}{c_reset}\n")
         sys.stdout.write("\n")
 
     if summary["passed"]:
         if len(warnings) == 0:
-            sys.stdout.write(f"{c_green}{c_bold}✅ Diff Audit PASSED: Clean changes with no boundary violations or stray artifacts.{c_reset}\n\n")
+            sys.stdout.write(
+                f"{c_green}{c_bold}✅ Diff Audit PASSED: Clean changes with no boundary violations or stray artifacts.{c_reset}\n\n"
+            )
         else:
-            sys.stdout.write(f"{c_green}{c_bold}✅ Diff Audit PASSED with {len(warnings)} warning(s). Check warnings before finalizing PR.{c_reset}\n\n")
+            sys.stdout.write(
+                f"{c_green}{c_bold}✅ Diff Audit PASSED with {len(warnings)} warning(s). Check warnings before finalizing PR.{c_reset}\n\n"
+            )
     else:
-        sys.stdout.write(f"{c_red}{c_bold}❌ Diff Audit FAILED: Please fix identified error(s) before committing or creating a PR.{c_reset}\n\n")
+        sys.stdout.write(
+            f"{c_red}{c_bold}❌ Diff Audit FAILED: Please fix identified error(s) before committing or creating a PR.{c_reset}\n\n"
+        )
 
 
 def main():
@@ -412,7 +495,9 @@ def main():
             conflicting.append("--base")
         if args.range is not None:
             conflicting.append("--range")
-        error_msg = f"Conflicting target options: {', '.join(conflicting)}. Use only one."
+        error_msg = (
+            f"Conflicting target options: {', '.join(conflicting)}. Use only one."
+        )
         if args.json:
             sys.stdout.write(json.dumps({"error": error_msg, "passed": False}) + "\n")
         else:
@@ -432,7 +517,7 @@ def main():
             commit_range=args.range,
             paths=args.paths if args.paths else None,
         )
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError, RuntimeError) as e:
         if args.json:
             sys.stdout.write(json.dumps({"error": str(e), "passed": False}) + "\n")
         else:
@@ -447,7 +532,9 @@ def main():
         except re.error as e:
             error_msg = f"Invalid regex pattern in --allowed-scope: {e}"
             if args.json:
-                sys.stdout.write(json.dumps({"error": error_msg, "passed": False}) + "\n")
+                sys.stdout.write(
+                    json.dumps({"error": error_msg, "passed": False}) + "\n"
+                )
             else:
                 sys.stderr.write(f"{RED}Error: {error_msg}{RESET}\n")
             sys.exit(1)
