@@ -42,17 +42,11 @@ jobs:
               ;;
           esac
           # Install yamlfmt via gh CLI
-          YAMLFMT_VER=$(gh release list -R google/yamlfmt --limit 1 | awk '{print $1}')
-          gh release download "$YAMLFMT_VER" -R google/yamlfmt -p "yamlfmt_*_Linux_${YAMLFMT_ARCH}.tar.gz"
-          tar -xzf "yamlfmt_*_Linux_${YAMLFMT_ARCH}.tar.gz" yamlfmt
-          mv yamlfmt "$HOME/.local/bin/"
-          rm "yamlfmt_*_Linux_${YAMLFMT_ARCH}.tar.gz"
+          gh release download -R google/yamlfmt -p "*_Linux_${YAMLFMT_ARCH}.tar.gz" -O - \
+            | tar -xz -C "$HOME/.local/bin" yamlfmt
           # Install actionlint via gh CLI
-          ACTIONLINT_VER=$(gh release list -R rhysd/actionlint --limit 1 | awk '{print $1}')
-          gh release download "$ACTIONLINT_VER" -R rhysd/actionlint -p "actionlint_*_linux_${ACTIONLINT_ARCH}.tar.gz"
-          tar -xzf "actionlint_*_linux_${ACTIONLINT_ARCH}.tar.gz" actionlint
-          mv actionlint "$HOME/.local/bin/"
-          rm "actionlint_*_linux_${ACTIONLINT_ARCH}.tar.gz"
+          gh release download -R rhysd/actionlint -p "*_linux_${ACTIONLINT_ARCH}.tar.gz" -O - \
+            | tar -xz -C "$HOME/.local/bin" actionlint
       - name: Verify tool installation
         run: |
           yamlfmt -version
