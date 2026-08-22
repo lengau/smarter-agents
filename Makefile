@@ -1,12 +1,6 @@
 # Makefile for smarter-agents
 
 PROJECT := smarter-agents
-PYTHON_SOURCES := installer.py
-YAML_SOURCES := collections.yaml .yamllint.yaml .coderabbit.yaml .pre-commit-config.yaml .github/workflows/*.yaml
-JSON_SOURCES := .pymarkdown.json .github/renovate.json skills/context-checkpoint/schemas/checkpoint.schema.json skills/context-checkpoint/templates/checkpoint.template.json
-JSON_SCHEMAS := skills/context-checkpoint/schemas/checkpoint.schema.json
-MD_SOURCES := README.md rules/*.md skills/context-checkpoint/SKILL.md skills/context-checkpoint/templates/SESSION.template.md
-WORKFLOW_SOURCES := .github/workflows/*.yaml
 
 .DEFAULT_GOAL := help
 
@@ -30,35 +24,40 @@ lint-yaml: ## Check YAML files with yamlfmt and yamllint
 lint-json: lint-json-syntax lint-json-schema ## Validate JSON syntax and JSON schemas
 
 .PHONY: lint-json-syntax
-lint-json-syntax: ## Validate JSON syntax
+lint-json-syntax: ## Validate JSON syntax across repository
 	@echo "==> Validating JSON syntax..."
-	@for f in $(JSON_SOURCES); do \
+	@for f in $$(git ls-files "*.json" ".*.json"); do \
 		python3 -m json.tool "$$f" > /dev/null || exit 1; \
 	done
 
 .PHONY: lint-json-schema
 lint-json-schema: ## Validate JSON schemas against Draft 7 metaschema and validate templates
-	@echo "==> Validating JSON metaschema with check-jsonschema..."
-	uv tool run check-jsonschema --check-metaschema $(JSON_SCHEMAS)
-	@echo "==> Validating JSON templates against schema..."
-	uv tool run check-jsonschema --schemafile skills/context-checkpoint/schemas/checkpoint.schema.json skills/context-checkpoint/templates/checkpoint.template.json
+	@echo "==> Validating JSON metaschemas with check-jsonschema..."
+	@schemas=$$(git ls-files "*schema.json" "**/schemas/*.json" | sort -u); \
+	if [ -n "$$schemas" ]; then \
+		uv tool run check-jsonschema --check-metaschema $$schemas; \
+	fi
+	@echo "==> Validating JSON templates against schemas..."
+	@if [ -f skills/context-checkpoint/schemas/checkpoint.schema.json ] && [ -f skills/context-checkpoint/templates/checkpoint.template.json ]; then \
+		uv tool run check-jsonschema --schemafile skills/context-checkpoint/schemas/checkpoint.schema.json skills/context-checkpoint/templates/checkpoint.template.json; \
+	fi
 
 .PHONY: lint-md
 lint-md: ## Check Markdown files with pymarkdownlnt
 	@echo "==> Running pymarkdownlnt..."
-	uv tool run pymarkdownlnt --config .pymarkdown.json scan $(MD_SOURCES)
+	uv tool run pymarkdownlnt --config .pymarkdown.json scan .
 
 .PHONY: lint-python
 lint-python: ## Check Python files with ruff and ty
 	@echo "==> Running ruff check..."
-	ruff check $(PYTHON_SOURCES)
+	ruff check .
 	@echo "==> Running ty type check..."
-	uv tool run ty check $(PYTHON_SOURCES)
+	uv tool run ty check .
 
 .PHONY: lint-workflows
 lint-workflows: ## Check GitHub Actions workflows with actionlint and zizmor
 	@echo "==> Running actionlint..."
-	actionlint $(WORKFLOW_SOURCES)
+	actionlint
 	@echo "==> Running zizmor audit..."
 	uv tool run zizmor .
 
@@ -78,20 +77,20 @@ format-yaml: ## Format YAML files with yamlfmt
 .PHONY: format-json
 format-json: ## Format JSON files
 	@echo "==> Formatting JSON files..."
-	@for f in $(JSON_SOURCES); do \
+	@for f in $$(git ls-files "*.json" ".*.json"); do \
 		python3 -m json.tool "$$f" "$$f.tmp" && mv "$$f.tmp" "$$f"; \
 	done
 
 .PHONY: format-md
 format-md: ## Format Markdown files with pymarkdownlnt
 	@echo "==> Formatting Markdown with pymarkdownlnt..."
-	uv tool run pymarkdownlnt --config .pymarkdown.json fix $(MD_SOURCES)
+	uv tool run pymarkdownlnt --config .pymarkdown.json fix .
 
 .PHONY: format-python
 format-python: ## Format Python files with ruff
 	@echo "==> Formatting Python with ruff..."
-	ruff format $(PYTHON_SOURCES)
-	ruff check --fix $(PYTHON_SOURCES)
+	ruff format .
+	ruff check --fix .
 
 .PHONY: setup-hooks
 setup-hooks: ## Install git hooks using prek
