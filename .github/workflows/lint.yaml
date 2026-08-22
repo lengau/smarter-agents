@@ -20,7 +20,7 @@ jobs:
         with:
           enable-cache: true
       - name: Set up Node.js
-        uses: actions/setup-node@0a44ba7841725637a54e28021617f82f4687b39b # v4.0.4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "20"
       - name: Install tools and binaries
