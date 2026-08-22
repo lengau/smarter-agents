@@ -23,7 +23,7 @@
 
 | ID | Milestone | Status | Verified By | Completed At |
 | :--- | :--- | :--- | :--- | :--- |
-{{MILESTONES_TABLE}}
+| {{MILESTONE_ID}} | {{MILESTONE_TITLE}} | {{MILESTONE_STATUS}} | {{VERIFIED_BY}} | {{COMPLETED_AT}} |
 
 ---
 

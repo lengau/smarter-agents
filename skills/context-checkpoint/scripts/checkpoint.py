@@ -8,8 +8,12 @@ to survive aggressive context window compaction and multi-turn amnesia.
 
 import argparse
 import datetime
+import fcntl
 import json
+import os
 import sys
+import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 
 DEFAULT_CHECKPOINT_FILE = ".checkpoint.json"
@@ -25,6 +29,19 @@ def get_current_iso_time() -> str:
     )
 
 
+@contextmanager
+def file_transaction(filepath: Path):
+    """Context manager providing an exclusive process lock during read-modify-save cycles."""
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = filepath.with_suffix(".lock")
+    with open(lock_path, "a+", encoding="utf-8") as lock_file:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
+
 def load_checkpoint(filepath: Path) -> dict:
     if not filepath.exists():
         print(f"Error: Checkpoint file '{filepath}' does not exist.", file=sys.stderr)
@@ -38,10 +55,25 @@ def load_checkpoint(filepath: Path) -> dict:
 
 
 def save_checkpoint(filepath: Path, data: dict):
+    filepath.parent.mkdir(parents=True, exist_ok=True)
     data["updated_at"] = get_current_iso_time()
-    with open(filepath, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-        f.write("\n")
+
+    temp_path = None
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        encoding="utf-8",
+        dir=filepath.parent,
+        delete=False,
+        suffix=".tmp",
+    ) as temp_file:
+        temp_path = Path(temp_file.name)
+        json.dump(data, temp_file, indent=2)
+        temp_file.write("\n")
+        temp_file.flush()
+        os.fsync(temp_file.fileno())
+
+    if temp_path and temp_path.exists():
+        os.replace(temp_path, filepath)
     print(f"Saved checkpoint to {filepath}")
 
 
@@ -183,148 +215,42 @@ def render_markdown(data: dict) -> str:
 def sync_render(checkpoint_path: Path, session_path: Path):
     data = load_checkpoint(checkpoint_path)
     md_content = render_markdown(data)
-    with open(session_path, "w", encoding="utf-8") as f:
-        f.write(md_content)
+    session_path.parent.mkdir(parents=True, exist_ok=True)
+
+    temp_path = None
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        encoding="utf-8",
+        dir=session_path.parent,
+        delete=False,
+        suffix=".tmp",
+    ) as temp_file:
+        temp_path = Path(temp_file.name)
+        temp_file.write(md_content)
+        temp_file.flush()
+        os.fsync(temp_file.fileno())
+
+    if temp_path and temp_path.exists():
+        os.replace(temp_path, session_path)
     print(f"Rendered session summary to {session_path}")
 
 
-def cmd_init(args):
-    filepath = Path(args.file)
-    if filepath.exists() and not args.force:
-        print(
-            f"Error: '{filepath}' already exists. Use --force to overwrite.",
-            file=sys.stderr,
-        )
-        sys.exit(1)
+def validate_checkpoint_data(data: dict, schema_path: Path = SCHEMA_PATH) -> bool:
+    """Validate checkpoint dictionary against Draft 7 JSON schema."""
+    try:
+        import importlib
 
-    session_id = (
-        args.session_id
-        or f"session-{datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d-%H%M%S')}"
-    )
-    data = {
-        "$schema": "https://raw.githubusercontent.com/lengau/smarter-agents/main/skills/context-checkpoint/schemas/checkpoint.schema.json",
-        "version": "1.0.0",
-        "session_id": session_id,
-        "updated_at": get_current_iso_time(),
-        "goal": {
-            "primary": args.goal or "Primary goal to be defined",
-            "scope_boundaries": args.scope or [],
-            "acceptance_criteria": args.criteria or [],
-        },
-        "milestones": [],
-        "decisions": [],
-        "blockers": [],
-        "active_context": {
-            "current_step": "Initialized session checkpoint",
-            "open_files": [],
-            "next_actions": ["Define detailed milestones and explore codebase"],
-        },
-    }
-    save_checkpoint(filepath, data)
-    sync_render(filepath, Path(args.session_file))
+        jsonschema = importlib.import_module("jsonschema")
+        if schema_path.exists():
+            with open(schema_path, "r", encoding="utf-8") as f:
+                schema = json.load(f)
+            jsonschema.validate(instance=data, schema=schema)
+            return True
+    except (ImportError, ModuleNotFoundError):
+        pass
+    except Exception as e:
+        raise ValueError(f"Schema validation error: {e}") from e
 
-
-def cmd_milestone_add(args):
-    filepath = Path(args.file)
-    data = load_checkpoint(filepath)
-    milestones = data.setdefault("milestones", [])
-    next_num = len(milestones) + 1
-    m_id = args.id or f"M{next_num}"
-    new_milestone = {
-        "id": m_id,
-        "title": args.title,
-        "status": args.status,
-        "verified_by": args.verify_cmd if args.status == "completed" else None,
-        "timestamp": get_current_iso_time() if args.status == "completed" else None,
-    }
-    milestones.append(new_milestone)
-    save_checkpoint(filepath, data)
-    sync_render(filepath, Path(args.session_file))
-    print(f"Added milestone [{m_id}]: {args.title}")
-
-
-def cmd_milestone_complete(args):
-    filepath = Path(args.file)
-    data = load_checkpoint(filepath)
-    milestones = data.get("milestones", [])
-    found = False
-    for m in milestones:
-        if m.get("id") == args.id:
-            m["status"] = "completed"
-            m["verified_by"] = args.verify_cmd
-            m["timestamp"] = get_current_iso_time()
-            found = True
-            break
-    if not found:
-        print(f"Error: Milestone with ID '{args.id}' not found.", file=sys.stderr)
-        sys.exit(1)
-
-    save_checkpoint(filepath, data)
-    sync_render(filepath, Path(args.session_file))
-    print(f"Completed and verified milestone [{args.id}]")
-
-
-def cmd_decision_add(args):
-    filepath = Path(args.file)
-    data = load_checkpoint(filepath)
-    decisions = data.setdefault("decisions", [])
-    next_num = len(decisions) + 1
-    d_id = args.id or f"D{next_num}"
-    new_decision = {
-        "id": d_id,
-        "topic": args.topic,
-        "choice": args.choice,
-        "rationale": args.rationale,
-    }
-    decisions.append(new_decision)
-    save_checkpoint(filepath, data)
-    sync_render(filepath, Path(args.session_file))
-    print(f"Added decision [{d_id}] for topic '{args.topic}'")
-
-
-def cmd_blocker_add(args):
-    filepath = Path(args.file)
-    data = load_checkpoint(filepath)
-    blockers = data.setdefault("blockers", [])
-    next_num = len(blockers) + 1
-    b_id = args.id or f"B{next_num}"
-    new_blocker = {
-        "id": b_id,
-        "description": args.desc,
-        "status": args.status,
-        "workaround": args.workaround,
-    }
-    blockers.append(new_blocker)
-    save_checkpoint(filepath, data)
-    sync_render(filepath, Path(args.session_file))
-    print(f"Added blocker [{b_id}]: {args.desc}")
-
-
-def cmd_update_context(args):
-    filepath = Path(args.file)
-    data = load_checkpoint(filepath)
-    ctx = data.setdefault("active_context", {})
-    if args.step:
-        ctx["current_step"] = args.step
-    if args.file_add:
-        current_files = set(ctx.get("open_files", []))
-        current_files.update(args.file_add)
-        ctx["open_files"] = sorted(current_files)
-    if args.next_action:
-        ctx["next_actions"] = args.next_action
-
-    save_checkpoint(filepath, data)
-    sync_render(filepath, Path(args.session_file))
-    print("Updated active context.")
-
-
-def cmd_render(args):
-    sync_render(Path(args.file), Path(args.session_file))
-
-
-def cmd_validate(args):
-    filepath = Path(args.file)
-    data = load_checkpoint(filepath)
     required_keys = [
         "version",
         "session_id",
@@ -337,18 +263,176 @@ def cmd_validate(args):
     ]
     missing = [k for k in required_keys if k not in data]
     if missing:
-        print(
-            f"Validation FAILED: Missing required top-level keys: {missing}",
-            file=sys.stderr,
-        )
-        sys.exit(1)
+        raise ValueError(f"Missing required top-level keys: {missing}")
 
-    # Validate goal
-    goal = data["goal"]
+    goal = data.get("goal", {})
     for gk in ["primary", "scope_boundaries", "acceptance_criteria"]:
         if gk not in goal:
-            print(f"Validation FAILED: Missing goal key '{gk}'", file=sys.stderr)
+            raise ValueError(f"Missing goal key '{gk}'")
+
+    valid_statuses = {"pending", "in_progress", "completed", "failed", "blocked"}
+    for m in data.get("milestones", []):
+        if (
+            not isinstance(m, dict)
+            or "id" not in m
+            or "title" not in m
+            or "status" not in m
+        ):
+            raise ValueError(f"Invalid milestone record: {m}")
+        if m["status"] not in valid_statuses:
+            raise ValueError(f"Invalid milestone status '{m['status']}'")
+
+    return True
+
+
+def cmd_init(args):
+    filepath = Path(args.file)
+    with file_transaction(filepath):
+        if filepath.exists() and not args.force:
+            print(
+                f"Error: '{filepath}' already exists. Use --force to overwrite.",
+                file=sys.stderr,
+            )
             sys.exit(1)
+
+        session_id = (
+            args.session_id
+            or f"session-{datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d-%H%M%S')}"
+        )
+        data = {
+            "$schema": "https://raw.githubusercontent.com/lengau/smarter-agents/main/skills/context-checkpoint/schemas/checkpoint.schema.json",
+            "version": "1.0.0",
+            "session_id": session_id,
+            "updated_at": get_current_iso_time(),
+            "goal": {
+                "primary": args.goal or "Primary goal to be defined",
+                "scope_boundaries": args.scope or [],
+                "acceptance_criteria": args.criteria or [],
+            },
+            "milestones": [],
+            "decisions": [],
+            "blockers": [],
+            "active_context": {
+                "current_step": "Initialized session checkpoint",
+                "open_files": [],
+                "next_actions": ["Define detailed milestones and explore codebase"],
+            },
+        }
+        save_checkpoint(filepath, data)
+        sync_render(filepath, Path(args.session_file))
+
+
+def cmd_milestone_add(args):
+    filepath = Path(args.file)
+    with file_transaction(filepath):
+        data = load_checkpoint(filepath)
+        milestones = data.setdefault("milestones", [])
+        next_num = len(milestones) + 1
+        m_id = args.id or f"M{next_num}"
+        new_milestone = {
+            "id": m_id,
+            "title": args.title,
+            "status": args.status,
+            "verified_by": args.verify_cmd if args.status == "completed" else None,
+            "timestamp": get_current_iso_time() if args.status == "completed" else None,
+        }
+        milestones.append(new_milestone)
+        save_checkpoint(filepath, data)
+        sync_render(filepath, Path(args.session_file))
+        print(f"Added milestone [{m_id}]: {args.title}")
+
+
+def cmd_milestone_complete(args):
+    filepath = Path(args.file)
+    with file_transaction(filepath):
+        data = load_checkpoint(filepath)
+        milestones = data.get("milestones", [])
+        found = False
+        for m in milestones:
+            if m.get("id") == args.id:
+                m["status"] = "completed"
+                m["verified_by"] = args.verify_cmd
+                m["timestamp"] = get_current_iso_time()
+                found = True
+                break
+        if not found:
+            print(f"Error: Milestone with ID '{args.id}' not found.", file=sys.stderr)
+            sys.exit(1)
+
+        save_checkpoint(filepath, data)
+        sync_render(filepath, Path(args.session_file))
+        print(f"Completed and verified milestone [{args.id}]")
+
+
+def cmd_decision_add(args):
+    filepath = Path(args.file)
+    with file_transaction(filepath):
+        data = load_checkpoint(filepath)
+        decisions = data.setdefault("decisions", [])
+        next_num = len(decisions) + 1
+        d_id = args.id or f"D{next_num}"
+        new_decision = {
+            "id": d_id,
+            "topic": args.topic,
+            "choice": args.choice,
+            "rationale": args.rationale,
+        }
+        decisions.append(new_decision)
+        save_checkpoint(filepath, data)
+        sync_render(filepath, Path(args.session_file))
+        print(f"Added decision [{d_id}] for topic '{args.topic}'")
+
+
+def cmd_blocker_add(args):
+    filepath = Path(args.file)
+    with file_transaction(filepath):
+        data = load_checkpoint(filepath)
+        blockers = data.setdefault("blockers", [])
+        next_num = len(blockers) + 1
+        b_id = args.id or f"B{next_num}"
+        new_blocker = {
+            "id": b_id,
+            "description": args.desc,
+            "status": args.status,
+            "workaround": args.workaround,
+        }
+        blockers.append(new_blocker)
+        save_checkpoint(filepath, data)
+        sync_render(filepath, Path(args.session_file))
+        print(f"Added blocker [{b_id}]: {args.desc}")
+
+
+def cmd_update_context(args):
+    filepath = Path(args.file)
+    with file_transaction(filepath):
+        data = load_checkpoint(filepath)
+        ctx = data.setdefault("active_context", {})
+        if args.step:
+            ctx["current_step"] = args.step
+        if args.file_add:
+            current_files = set(ctx.get("open_files", []))
+            current_files.update(args.file_add)
+            ctx["open_files"] = sorted(current_files)
+        if args.next_action:
+            ctx["next_actions"] = args.next_action
+
+        save_checkpoint(filepath, data)
+        sync_render(filepath, Path(args.session_file))
+        print("Updated active context.")
+
+
+def cmd_render(args):
+    sync_render(Path(args.file), Path(args.session_file))
+
+
+def cmd_validate(args):
+    filepath = Path(args.file)
+    data = load_checkpoint(filepath)
+    try:
+        validate_checkpoint_data(data, SCHEMA_PATH)
+    except (ValueError, OSError) as e:
+        print(f"Validation FAILED: {e}", file=sys.stderr)
+        sys.exit(1)
 
     print(
         f"Validation PASSED for '{filepath}'. Checkpoint structure is fully compliant."
