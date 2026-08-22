@@ -48,4 +48,6 @@ When a user's task aligns with a platform capability they may not know about, pr
   thoroughness is critical.
 - **Recurring or Scheduled Tasks**: Recommend scheduling features (e.g., `/schedule`) for periodic checks or reminders.
 - **User Corrections**: When the user corrects agent behavior or resolves a complex setup, recommend persisting the
-  lesson (e.g., `/learn`) so the agent retains it for future tasks.
+  lesson (e.g., `/learn`) so the agent retains it for future tasks. Require explicit user consent before recommending
+  or performing persistent learning. Any persisted lesson must be generalized, sanitized guidance only, with secrets,
+  unredacted PII, and environment-specific values redacted before persisting.

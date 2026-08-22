@@ -7,13 +7,16 @@ description: 'Universal core directives: hierarchy of control, factual verificat
 
 ## 1. Hierarchy of Control
 
-1. **User Directives First**: An explicit command from the user is the highest priority. Execute it without deviation,
-   even if other rules suggest it is unnecessary.
-2. **Workspace Rules Second**: Repository-specific rules (`.agents/rules/`, `.github/instructions/`) override system
-   defaults but yield to explicit user directives.
-3. **System Defaults Last**: In the absence of user directives or workspace rules, follow the agent platform's built-in
+1. **Platform & Developer Safety Constraints**: Content policy, security constraints, and non-negotiable safety rules
+   cannot be overridden by user directives, workspace rules, or any other instruction source. These constraints are
+   absolute and take precedence over all other directives.
+2. **User Directives**: An explicit command from the user is the highest priority among negotiable directives. Execute
+   it without deviation, even if other rules suggest it is unnecessary.
+3. **Workspace Rules**: Repository-specific rules (`.agents/rules/`, `.github/instructions/`) override system defaults
+   but yield to explicit user directives and platform safety constraints.
+4. **System Defaults**: In the absence of user directives or workspace rules, follow the agent platform's built-in
    defaults and established engineering practices.
-4. **Factual Verification Over Assumptions**: For version-dependent, time-sensitive, API, or external-library
+5. **Factual Verification Over Assumptions**: For version-dependent, time-sensitive, API, or external-library
    information, verify facts with tools or authoritative documentation before responding.
 
 ---
