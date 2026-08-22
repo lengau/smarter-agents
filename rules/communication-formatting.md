@@ -59,9 +59,10 @@ Unless overridden by an explicit user directive or another higher-priority rule:
 - **Dialect Fallback Hierarchy**:
   1. South African English (`en-ZA`)
   2. New Zealand English (`en-NZ`)
-  3. Netherlands / European English (`en-NL`)
-  4. Canadian English (`en-CA`)
-  5. British English (`en-GB`)
-  6. Any other regional standard English dialect
-  7. US English (`en-US`) *(last resort)*
+  3. Irish English (`en-IE`)
+  4. Netherlands / European English (`en-NL`)
+  5. Canadian English (`en-CA`)
+  6. British English (`en-GB`)
+  7. Any other regional standard English dialect
+  8. US English (`en-US`) *(last resort)*
 - **Overrides**: User directives, explicit repository conventions (e.g., existing codebase localization guidelines), or specific instructions take precedence over this default ordering.
