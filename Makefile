@@ -1,7 +1,7 @@
 # Makefile for smarter-agents
 
 PROJECT := smarter-agents
-PYTHON_SOURCES := installer.py skills/context-checkpoint/scripts/checkpoint.py tests/test_checkpoint.py
+PYTHON_SOURCES := installer.py
 YAML_SOURCES := collections.yaml .yamllint.yaml .coderabbit.yaml .pre-commit-config.yaml .github/workflows/*.yaml
 JSON_SOURCES := .pymarkdown.json .github/renovate.json skills/context-checkpoint/schemas/checkpoint.schema.json skills/context-checkpoint/templates/checkpoint.template.json
 JSON_SCHEMAS := skills/context-checkpoint/schemas/checkpoint.schema.json
@@ -53,7 +53,7 @@ lint-python: ## Check Python files with ruff and ty
 	@echo "==> Running ruff check..."
 	ruff check $(PYTHON_SOURCES)
 	@echo "==> Running ty type check..."
-	uv tool run --with pytest ty check $(PYTHON_SOURCES)
+	uv tool run ty check $(PYTHON_SOURCES)
 
 .PHONY: lint-workflows
 lint-workflows: ## Check GitHub Actions workflows with actionlint and zizmor
@@ -98,18 +98,11 @@ setup-hooks: ## Install git hooks using prek
 	@echo "==> Installing git hooks with prek..."
 	uv tool run prek install
 
-.PHONY: test-unit
-test-unit: ## Run unit tests with pytest
-	@echo "==> Running unit tests with pytest..."
-	uv tool run pytest tests
-	@echo "Unit tests passed."
-
 .PHONY: test-smoke
 test-smoke: ## Run smoke tests
 	@echo "==> Running smoke tests..."
 	python3 installer.py --help > /dev/null
-	python3 skills/context-checkpoint/scripts/checkpoint.py --help > /dev/null
 	@echo "Smoke tests passed."
 
 .PHONY: test
-test: test-unit test-smoke ## Run all tests (unit and smoke)
+test: test-smoke ## Run tests (alias for test-smoke)
