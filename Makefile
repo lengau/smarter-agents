@@ -40,6 +40,9 @@ lint-json-schema: ## Validate JSON schemas against Draft 7 metaschema and valida
 	@echo "==> Validating JSON templates against schemas..."
 	@if [ -f skills/context-checkpoint/schemas/checkpoint.schema.json ] && [ -f skills/context-checkpoint/templates/checkpoint.template.json ]; then \
 		uv tool run check-jsonschema --schemafile skills/context-checkpoint/schemas/checkpoint.schema.json skills/context-checkpoint/templates/checkpoint.template.json; \
+	else \
+		echo "Error: Required checkpoint schema or template file is missing" >&2; \
+		exit 1; \
 	fi
 
 .PHONY: lint-md
@@ -78,7 +81,7 @@ format-yaml: ## Format YAML files with yamlfmt
 format-json: ## Format JSON files
 	@echo "==> Formatting JSON files..."
 	@for f in $$(git ls-files "*.json" ".*.json"); do \
-		python3 -m json.tool "$$f" "$$f.tmp" && mv "$$f.tmp" "$$f"; \
+		python3 -m json.tool "$$f" "$$f.tmp" && mv "$$f.tmp" "$$f" || exit 1; \
 	done
 
 .PHONY: format-md
