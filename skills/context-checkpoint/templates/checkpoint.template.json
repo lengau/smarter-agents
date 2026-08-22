@@ -1,0 +1,42 @@
+{
+    "$schema": "https://raw.githubusercontent.com/lengau/smarter-agents/main/skills/context-checkpoint/schemas/checkpoint.schema.json",
+    "version": "1.0.0",
+    "session_id": "session-template",
+    "updated_at": "2026-01-01T00:00:00Z",
+    "goal": {
+        "primary": "Primary user objective or task description",
+        "scope_boundaries": [
+            "Explicit boundary of allowed files or modules",
+            "Explicit anti-goal or forbidden modifications"
+        ],
+        "acceptance_criteria": [
+            "Measurable criteria 1",
+            "Measurable criteria 2"
+        ]
+    },
+    "milestones": [
+        {
+            "id": "M1",
+            "title": "Initial reconnaissance and test reproduction",
+            "status": "pending",
+            "verified_by": null,
+            "timestamp": null
+        }
+    ],
+    "decisions": [
+        {
+            "id": "D1",
+            "topic": "Architecture / Design Choice",
+            "choice": "Selected approach",
+            "rationale": "Reason why this approach was chosen over alternatives"
+        }
+    ],
+    "blockers": [],
+    "active_context": {
+        "current_step": "Starting task execution",
+        "open_files": [],
+        "next_actions": [
+            "Review problem statement and locate relevant files"
+        ]
+    }
+}

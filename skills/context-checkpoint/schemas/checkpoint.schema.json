@@ -1,0 +1,184 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "ContextCheckpoint",
+    "description": "Schema for serializing agent session state, milestones, architectural decisions, and active context across compactions.",
+    "type": "object",
+    "required": [
+        "version",
+        "session_id",
+        "updated_at",
+        "goal",
+        "milestones",
+        "decisions",
+        "blockers",
+        "active_context"
+    ],
+    "properties": {
+        "$schema": {
+            "type": "string"
+        },
+        "version": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "session_id": {
+            "type": "string",
+            "minLength": 1
+        },
+        "updated_at": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "goal": {
+            "type": "object",
+            "required": [
+                "primary",
+                "scope_boundaries",
+                "acceptance_criteria"
+            ],
+            "properties": {
+                "primary": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "scope_boundaries": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "acceptance_criteria": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "milestones": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "title",
+                    "status"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "in_progress",
+                            "completed",
+                            "failed",
+                            "blocked"
+                        ]
+                    },
+                    "verified_by": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "timestamp": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            }
+        },
+        "decisions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "topic",
+                    "choice",
+                    "rationale"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "topic": {
+                        "type": "string"
+                    },
+                    "choice": {
+                        "type": "string"
+                    },
+                    "rationale": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "blockers": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "description",
+                    "status"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "active",
+                            "resolved",
+                            "investigating"
+                        ]
+                    },
+                    "workaround": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            }
+        },
+        "active_context": {
+            "type": "object",
+            "required": [
+                "current_step",
+                "open_files",
+                "next_actions"
+            ],
+            "properties": {
+                "current_step": {
+                    "type": "string"
+                },
+                "open_files": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "next_actions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
