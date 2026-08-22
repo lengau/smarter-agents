@@ -255,7 +255,7 @@ pub struct CustomFilter;
 
 impl Filter for CustomFilter {
     fn name(&self) -> &str { "custom" }
-    
+
     fn apply(&self, ctx: &FilterContext, input: &str) -> String {
         // Remove internal debug lines
         input.lines()

@@ -44,21 +44,21 @@ import (
 
 func main() {
     ctx := context.Background()
-    
+
     // Configure the sandbox
     config := taboo.Config{
         Repository: "github.com/user/repo",
         Branch:     "feature/agent-task",
         Sandbox:    taboo.SandboxConfig{Image: "workshop-base:latest"},
     }
-    
+
     // Create orchestrator
     orchestrator, err := taboo.NewOrchestrator(ctx, config)
     if err != nil {
         panic(err)
     }
     defer orchestrator.Close()
-    
+
     // Define agent workflow
     workflow := taboo.Workflow{
         Name: "code-review",
@@ -68,13 +68,13 @@ func main() {
             {Name: "test", Agent: "tester", Prompt: "Run tests and verify fixes"},
         },
     }
-    
+
     // Execute workflow
     result, err := orchestrator.Run(ctx, workflow)
     if err != nil {
         panic(err)
     }
-    
+
     fmt.Printf("Workflow completed: %v commits landed\n", result.CommitsLanded)
 }
 ```
@@ -209,7 +209,7 @@ func (a *AFKLoop) Run(ctx context.Context, task Task) (*Result, error) {
         if i > 0 && i%a.checkpointInterval == 0 {
             a.saveCheckpoint(ctx)
         }
-        
+
         // Execute iteration
         result, err := a.orchestrator.ExecuteIteration(ctx, task)
         if err != nil {
@@ -219,7 +219,7 @@ func (a *AFKLoop) Run(ctx context.Context, task Task) (*Result, error) {
             }
             return nil, err
         }
-        
+
         // Verify results
         if a.verify(result) {
             // Commit and push changes
@@ -228,11 +228,11 @@ func (a *AFKLoop) Run(ctx context.Context, task Task) (*Result, error) {
             }
             return result, nil
         }
-        
+
         // Update task context for next iteration
         task = a.updateContext(task, result)
     }
-    
+
     return nil, ErrMaxIterationsReached
 }
 ```

@@ -1,9 +1,12 @@
 {
-  "mcpServers": {
-    "smarter-agents": {
-      "command": "python3",
-      "args": ["-m", "skills.mcp_server"],
-      "cwd": "${workspaceFolder}"
+    "mcpServers": {
+        "smarter-agents": {
+            "command": "python3",
+            "args": [
+                "-m",
+                "skills.mcp_server"
+            ],
+            "cwd": "${workspaceFolder}"
+        }
     }
-  }
 }

@@ -152,7 +152,9 @@ def print_info(msg: str):
     print(f"  {Colors.BLUE}ℹ{Colors.END} {msg}")
 
 
-def run_cmd(cmd: list[str], cwd: Path | None = None, capture: bool = True) -> tuple[int, str, str]:
+def run_cmd(
+    cmd: list[str], cwd: Path | None = None, capture: bool = True
+) -> tuple[int, str, str]:
     """Run command and return (exit_code, stdout, stderr)."""
     try:
         result = subprocess.run(
@@ -178,7 +180,9 @@ def detect_harnesses(target_dir: Path) -> dict[str, bool]:
     return detected
 
 
-def get_user_selection(prompt: str, options: list[str], default: str | None = None) -> list[str]:
+def get_user_selection(
+    prompt: str, options: list[str], default: str | None = None
+) -> list[str]:
     """Get multi-select user input."""
     print(f"\n{prompt}")
     for i, opt in enumerate(options, 1):
@@ -247,7 +251,9 @@ def audit_repository(target_dir: Path) -> dict[str, bool]:
     return detected
 
 
-def select_harnesses(detected: dict[str, bool], non_interactive: bool, harness_arg: str | None) -> list[str]:
+def select_harnesses(
+    detected: dict[str, bool], non_interactive: bool, harness_arg: str | None
+) -> list[str]:
     """Step 2: Select harnesses to configure."""
     print_step(2, 6, "HARNESS SELECTION:")
 
@@ -262,14 +268,20 @@ def select_harnesses(detected: dict[str, bool], non_interactive: bool, harness_a
         print_info(f"Selected (from args): {', '.join(selected)}")
         return selected
 
-    print_info(f"Detected: {', '.join(detected_harnesses) if detected_harnesses else 'none'}")
+    print_info(
+        f"Detected: {', '.join(detected_harnesses) if detected_harnesses else 'none'}"
+    )
     print_info(f"Available: {', '.join(all_harnesses)}")
 
-    default = ",".join(detected_harnesses + ["generic"]) if detected_harnesses else "generic"
+    default = (
+        ",".join(detected_harnesses + ["generic"]) if detected_harnesses else "generic"
+    )
     return get_user_selection("Select harnesses to configure:", all_harnesses, default)
 
 
-def select_collections(selected_harnesses: list[str], non_interactive: bool, collection_arg: str | None) -> dict[str, list[str]]:
+def select_collections(
+    selected_harnesses: list[str], non_interactive: bool, collection_arg: str | None
+) -> dict[str, list[str]]:
     """Step 3: Select collections per harness."""
     print_step(3, 6, "COLLECTION SELECTION:")
 
@@ -287,23 +299,30 @@ def select_collections(selected_harnesses: list[str], non_interactive: bool, col
             result[harness] = selected
         else:
             selected = get_user_selection(
-                f"Select collections for {harness}:",
-                recommended,
-                ",".join(recommended)
+                f"Select collections for {harness}:", recommended, ",".join(recommended)
             )
             result[harness] = selected
 
     return result
 
 
-def install_collections(target_dir: Path, selected_harnesses: list[str], collections_by_harness: dict[str, list[str]], use_symlinks: bool = True):
+def install_collections(
+    target_dir: Path,
+    selected_harnesses: list[str],
+    collections_by_harness: dict[str, list[str]],
+    use_symlinks: bool = True,
+):
     """Step 4: Install collections using installer.py."""
     print_step(4, 6, "INSTALLATION:")
 
     # Install core toolkit collections via installer.py
     for harness in selected_harnesses:
         collections = collections_by_harness.get(harness, [])
-        core_collections = [c for c in collections if c in ("smarter-agents-core", "rules-only", "skills-only")]
+        core_collections = [
+            c
+            for c in collections
+            if c in ("smarter-agents-core", "rules-only", "skills-only")
+        ]
 
         if core_collections:
             # Use the first core collection (they overlap)
@@ -311,9 +330,11 @@ def install_collections(target_dir: Path, selected_harnesses: list[str], collect
             print_info(f"Installing {collection} for {harness}...")
 
             cmd = [
-                sys.executable, str(INSTALLER),
+                sys.executable,
+                str(INSTALLER),
                 str(target_dir),
-                "--harness", harness,
+                "--harness",
+                harness,
             ]
             if not use_symlinks:
                 cmd.append("--copy")
@@ -341,7 +362,9 @@ def install_collections(target_dir: Path, selected_harnesses: list[str], collect
             run_cmd(["git", "-C", str(ext_dir), "pull"], capture=False)
         else:
             ext_dir.parent.mkdir(parents=True, exist_ok=True)
-            code, _out, err = run_cmd(["git", "clone", "--depth", "1", url, str(ext_dir)], capture=False)
+            code, _out, err = run_cmd(
+                ["git", "clone", "--depth", "1", url, str(ext_dir)], capture=False
+            )
             if code != 0:
                 print_error(f"  Failed to clone {coll_name}: {err}")
                 continue
@@ -360,7 +383,9 @@ def install_collections(target_dir: Path, selected_harnesses: list[str], collect
                     if not link_path.exists():
                         try:
                             link_path.symlink_to(ext_dir.relative_to(skills_dir))
-                            print_success(f"  Linked {coll_name} to {target['name']}/skills/")
+                            print_success(
+                                f"  Linked {coll_name} to {target['name']}/skills/"
+                            )
                         except (OSError, ValueError) as e:
                             print_warning(f"  Could not symlink {coll_name}: {e}")
 
@@ -370,44 +395,58 @@ def get_harness_targets(target_dir: Path, harness: str) -> list[dict]:
     targets = []
 
     if harness in ("generic", "antigravity", "default"):
-        targets.append({
-            "name": ".agents",
-            "rules_dir": target_dir / ".agents" / "rules",
-            "skills_dir": target_dir / ".agents" / "skills",
-        })
+        targets.append(
+            {
+                "name": ".agents",
+                "rules_dir": target_dir / ".agents" / "rules",
+                "skills_dir": target_dir / ".agents" / "skills",
+            }
+        )
 
     if harness in ("copilot", "github"):
-        targets.append({
-            "name": ".github",
-            "rules_dir": target_dir / ".github" / "instructions",
-            "skills_dir": target_dir / ".github" / "skills",
-        })
+        targets.append(
+            {
+                "name": ".github",
+                "rules_dir": target_dir / ".github" / "instructions",
+                "skills_dir": target_dir / ".github" / "skills",
+            }
+        )
 
     if harness == "opencode":
-        targets.append({
-            "name": "opencode",
-            "rules_dir": target_dir / ".opencode" / "instructions",
-            "skills_dir": target_dir / ".opencode" / "skills",
-        })
+        targets.append(
+            {
+                "name": "opencode",
+                "rules_dir": target_dir / ".opencode" / "instructions",
+                "skills_dir": target_dir / ".opencode" / "skills",
+            }
+        )
 
     if harness == "cursor":
-        targets.append({
-            "name": "cursor",
-            "rules_dir": target_dir / ".cursor" / "rules",
-            "skills_dir": target_dir / ".cursor" / "skills",
-        })
+        targets.append(
+            {
+                "name": "cursor",
+                "rules_dir": target_dir / ".cursor" / "rules",
+                "skills_dir": target_dir / ".cursor" / "skills",
+            }
+        )
 
     if harness == "claude":
-        targets.append({
-            "name": "claude",
-            "rules_dir": target_dir / ".claude" / "rules",
-            "skills_dir": target_dir / ".claude" / "skills",
-        })
+        targets.append(
+            {
+                "name": "claude",
+                "rules_dir": target_dir / ".claude" / "rules",
+                "skills_dir": target_dir / ".claude" / "skills",
+            }
+        )
 
     return targets
 
 
-def generate_configs(target_dir: Path, selected_harnesses: list[str], collections_by_harness: dict[str, list[str]]):
+def generate_configs(
+    target_dir: Path,
+    selected_harnesses: list[str],
+    collections_by_harness: dict[str, list[str]],
+):
     """Step 5: Generate harness-specific config files."""
     print_step(5, 6, "CONFIG GENERATION:")
 
@@ -449,7 +488,9 @@ def validate_setup(target_dir: Path, selected_harnesses: list[str]) -> bool:
                             try:
                                 target_path = item.resolve()
                                 if not target_path.exists():
-                                    print_error(f"  Broken symlink: {item} -> {target_path}")
+                                    print_error(
+                                        f"  Broken symlink: {item} -> {target_path}"
+                                    )
                                     all_ok = False
                             except OSError:
                                 print_error(f"  Invalid symlink: {item}")
@@ -477,11 +518,15 @@ def validate_setup(target_dir: Path, selected_harnesses: list[str]) -> bool:
             if inst_dir.exists():
                 md_files = list(inst_dir.glob("*.md"))
                 if md_files:
-                    code, _out, err = run_cmd(["markdownlint"] + [str(f) for f in md_files])
+                    code, _out, err = run_cmd(
+                        ["markdownlint"] + [str(f) for f in md_files]
+                    )
                     if code == 0:
                         print_success(f"  markdownlint: {target['name']}/instructions/")
                     else:
-                        print_warning(f"  markdownlint warnings in {target['name']}/instructions/")
+                        print_warning(
+                            f"  markdownlint warnings in {target['name']}/instructions/"
+                        )
 
     # Validate OpenCode JSON
     opencode_json = target_dir / "opencode.json"
@@ -507,7 +552,9 @@ def validate_setup(target_dir: Path, selected_harnesses: list[str]) -> bool:
                 # Try to find and run the skill's main script with --help
                 scripts = list(skill.glob("scripts/*.py"))
                 if scripts:
-                    code, _out, err = run_cmd([sys.executable, str(scripts[0]), "--help"])
+                    code, _out, err = run_cmd(
+                        [sys.executable, str(scripts[0]), "--help"]
+                    )
                     if code == 0:
                         print_success(f"  Skill dry-run: {skill.name}")
                     else:
@@ -524,35 +571,30 @@ def main():
         "target",
         nargs="?",
         default=".",
-        help="Target repository directory (default: current directory)"
+        help="Target repository directory (default: current directory)",
     )
     parser.add_argument(
         "--harness",
-        help="Comma-separated list of harnesses (copilot,opencode,cursor,claude,generic,all)"
+        help="Comma-separated list of harnesses (copilot,opencode,cursor,claude,generic,all)",
     )
     parser.add_argument(
-        "--collection",
-        help="Comma-separated list of collections to install (or 'all')"
+        "--collection", help="Comma-separated list of collections to install (or 'all')"
     )
     parser.add_argument(
         "--non-interactive",
         action="store_true",
-        help="Run without prompts using --harness and --collection args"
+        help="Run without prompts using --harness and --collection args",
     )
     parser.add_argument(
         "--audit-only",
         action="store_true",
-        help="Only audit and show recommendations, make no changes"
+        help="Only audit and show recommendations, make no changes",
     )
     parser.add_argument(
-        "--validate",
-        action="store_true",
-        help="Validate existing setup only"
+        "--validate", action="store_true", help="Validate existing setup only"
     )
     parser.add_argument(
-        "--copy",
-        action="store_true",
-        help="Copy files instead of symlinking"
+        "--copy", action="store_true", help="Copy files instead of symlinking"
     )
 
     args = parser.parse_args()
@@ -591,10 +633,17 @@ def main():
         return
 
     # Step 3: Collection selection
-    collections_by_harness = select_collections(selected_harnesses, args.non_interactive, args.collection)
+    collections_by_harness = select_collections(
+        selected_harnesses, args.non_interactive, args.collection
+    )
 
     # Step 4: Installation
-    install_collections(target_dir, selected_harnesses, collections_by_harness, use_symlinks=not args.copy)
+    install_collections(
+        target_dir,
+        selected_harnesses,
+        collections_by_harness,
+        use_symlinks=not args.copy,
+    )
 
     # Step 5: Config generation
     generate_configs(target_dir, selected_harnesses, collections_by_harness)
@@ -605,7 +654,9 @@ def main():
     print_header("CONFIGURATION " + ("COMPLETE" if ok else "COMPLETE WITH WARNINGS"))
     print_info("Next steps:")
     print("  1. Review generated config files")
-    print("  2. Run 'python3 skills/diff-auditor/scripts/audit_diff.py' to verify clean diffs")
+    print(
+        "  2. Run 'python3 skills/diff-auditor/scripts/audit_diff.py' to verify clean diffs"
+    )
     print("  3. Commit and push changes")
     print("  4. Restart your agent to load new skills")
 

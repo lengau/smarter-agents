@@ -127,10 +127,7 @@ rtk filter --input large-output.txt | headroom compress --stdin
 ```python
 import openai
 
-client = openai.OpenAI(
-    base_url="http://localhost:8080/v1",
-    api_key="your-key"
-)
+client = openai.OpenAI(base_url="http://localhost:8080/v1", api_key="your-key")
 
 # All requests automatically compressed and cached
 response = client.chat.completions.create(...)

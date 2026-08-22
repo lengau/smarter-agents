@@ -159,10 +159,7 @@ from mcp import Client
 client = Client("context-mode")
 
 # Store large context once
-await client.call("remember", {
-    "key": "api-docs",
-    "value": large_api_documentation
-})
+await client.call("remember", {"key": "api-docs", "value": large_api_documentation})
 
 # Recall in future sessions - minimal tokens
 result = await client.call("recall", {"key": "api-docs"})

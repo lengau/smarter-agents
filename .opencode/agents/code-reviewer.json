@@ -1,12 +1,24 @@
 {
-  "name": "code-reviewer",
-  "description": "Reviews PRs for scope, quality, and correctness",
-  "rules": ["diff-auditor", "scoped-autonomy", "test-driven-verification", "robust-file-ops", "communication-formatting"],
-  "skills": ["diff-auditor", "patch-repair"],
-  "model": {
-    "temperature": 0.1,
-    "max_tokens": 8192
-  },
-  "mcp_servers": ["headroom", "context-mode"],
-  "system_prompt_extension": "You are a senior code reviewer. Be thorough but concise. Use artifacts for diffs. Never approve without diff-audit passing."
+    "name": "code-reviewer",
+    "description": "Reviews PRs for scope, quality, and correctness",
+    "rules": [
+        "diff-auditor",
+        "scoped-autonomy",
+        "test-driven-verification",
+        "robust-file-ops",
+        "communication-formatting"
+    ],
+    "skills": [
+        "diff-auditor",
+        "patch-repair"
+    ],
+    "model": {
+        "temperature": 0.1,
+        "max_tokens": 8192
+    },
+    "mcp_servers": [
+        "headroom",
+        "context-mode"
+    ],
+    "system_prompt_extension": "You are a senior code reviewer. Be thorough but concise. Use artifacts for diffs. Never approve without diff-audit passing."
 }

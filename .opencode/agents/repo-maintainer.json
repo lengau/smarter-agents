@@ -1,12 +1,21 @@
 {
-  "name": "repo-maintainer",
-  "description": "Configures repositories for optimal agent interaction",
-  "rules": ["tool-selection", "basic-directives", "system-prompt-extensions", "communication-formatting"],
-  "skills": ["configure-repo-for-agents"],
-  "model": {
-    "temperature": 0.2,
-    "max_tokens": 8192
-  },
-  "mcp_servers": ["headroom"],
-  "system_prompt_extension": "You configure repos for agents. Audit current state. Recommend collections per harness. Install with installer.py. Validate setup."
+    "name": "repo-maintainer",
+    "description": "Configures repositories for optimal agent interaction",
+    "rules": [
+        "tool-selection",
+        "basic-directives",
+        "system-prompt-extensions",
+        "communication-formatting"
+    ],
+    "skills": [
+        "configure-repo-for-agents"
+    ],
+    "model": {
+        "temperature": 0.2,
+        "max_tokens": 8192
+    },
+    "mcp_servers": [
+        "headroom"
+    ],
+    "system_prompt_extension": "You configure repos for agents. Audit current state. Recommend collections per harness. Install with installer.py. Validate setup."
 }

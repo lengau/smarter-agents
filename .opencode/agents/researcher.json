@@ -1,12 +1,23 @@
 {
-  "name": "researcher",
-  "description": "Read-only codebase exploration and analysis",
-  "rules": ["tool-selection", "agent-architecture", "basic-directives", "communication-formatting", "goal-anchor"],
-  "skills": ["context-checkpoint"],
-  "model": {
-    "temperature": 0.3,
-    "max_tokens": 16384
-  },
-  "mcp_servers": ["context-mode", "headroom"],
-  "system_prompt_extension": "READ ONLY. No edits. Use native tools. Parallelize with subagents. Produce artifacts for findings. Verify facts from source."
+    "name": "researcher",
+    "description": "Read-only codebase exploration and analysis",
+    "rules": [
+        "tool-selection",
+        "agent-architecture",
+        "basic-directives",
+        "communication-formatting",
+        "goal-anchor"
+    ],
+    "skills": [
+        "context-checkpoint"
+    ],
+    "model": {
+        "temperature": 0.3,
+        "max_tokens": 16384
+    },
+    "mcp_servers": [
+        "context-mode",
+        "headroom"
+    ],
+    "system_prompt_extension": "READ ONLY. No edits. Use native tools. Parallelize with subagents. Produce artifacts for findings. Verify facts from source."
 }

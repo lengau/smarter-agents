@@ -1,12 +1,25 @@
 {
-  "name": "refactorer",
-  "description": "Performs surgical refactoring with strict scope control",
-  "rules": ["scoped-autonomy", "diff-auditor", "robust-file-ops", "test-driven-verification", "goal-anchor"],
-  "skills": ["diff-auditor", "patch-repair", "context-checkpoint"],
-  "model": {
-    "temperature": 0.1,
-    "max_tokens": 16384
-  },
-  "mcp_servers": ["headroom", "context-mode"],
-  "system_prompt_extension": "STRICT SCOPE. Diff budget: every line must trace to refactor goal. No boy-scout fixes. Audit before commit."
+    "name": "refactorer",
+    "description": "Performs surgical refactoring with strict scope control",
+    "rules": [
+        "scoped-autonomy",
+        "diff-auditor",
+        "robust-file-ops",
+        "test-driven-verification",
+        "goal-anchor"
+    ],
+    "skills": [
+        "diff-auditor",
+        "patch-repair",
+        "context-checkpoint"
+    ],
+    "model": {
+        "temperature": 0.1,
+        "max_tokens": 16384
+    },
+    "mcp_servers": [
+        "headroom",
+        "context-mode"
+    ],
+    "system_prompt_extension": "STRICT SCOPE. Diff budget: every line must trace to refactor goal. No boy-scout fixes. Audit before commit."
 }
