@@ -57,7 +57,8 @@ DEBUG_PATTERNS = {
 # Sensitive or out-of-scope file patterns
 SENSITIVE_PATTERNS = [
     re.compile(r"(^|/)\.env(\.[a-zA-Z0-9_-]+)?$"),
-    re.compile(r"\.(key|pem|pkcs12|pfx|id_rsa|id_ed25519)$", re.IGNORECASE),
+    re.compile(r"\.(key|pem|pkcs12|pfx)$", re.IGNORECASE),
+    re.compile(r"(^|/)(id_rsa|id_ed25519)$", re.IGNORECASE),
     re.compile(r"(^|/)(secrets|credentials|service-account|auth_token)\.(json|yaml|yml|txt)$", re.IGNORECASE),
 ]
 
@@ -184,9 +185,12 @@ def parse_diff_files(raw_diff: str) -> List[Dict]:
 def is_test_or_cli_file(filepath: str) -> bool:
     """Check if the file is a test suite or dedicated CLI executable where console output is standard."""
     test_patterns = [
-        r"(^|/)(test_|tests/|_test\.py$|\.test\.|\.spec\.)",
+        r"(^|/)(test_|tests/|_test\.(py|js|ts|rb|go|rs|php)$|\.test\.|\.spec\.)",
     ]
-    return any(re.search(pat, filepath, re.IGNORECASE) for pat in test_patterns)
+    cli_patterns = [
+        r"(^|/)(cli/|bin/|scripts/.*cli.*\.py$)",
+    ]
+    return any(re.search(pat, filepath, re.IGNORECASE) for pat in test_patterns + cli_patterns)
 
 
 def audit_diff(
@@ -361,9 +365,9 @@ def main():
     )
     parser.add_argument(
         "--allowed-scope",
-        nargs="*",
-        default=[],
-        help="Regex pattern(s) or paths for allowed files (e.g. 'src/' 'tests/')",
+        action="append",
+        dest="allowed_scope",
+        help="Regex pattern(s) or paths for allowed files (e.g. 'src/' 'tests/'). Can be specified multiple times.",
     )
     parser.add_argument(
         "--strict",
@@ -398,6 +402,23 @@ def main():
 
     args = parser.parse_args()
 
+    # Validate mutually exclusive target options
+    target_options = [args.staged, args.base is not None, args.range is not None]
+    if sum(target_options) > 1:
+        conflicting = []
+        if args.staged:
+            conflicting.append("--staged/--cached")
+        if args.base is not None:
+            conflicting.append("--base")
+        if args.range is not None:
+            conflicting.append("--range")
+        error_msg = f"Conflicting target options: {', '.join(conflicting)}. Use only one."
+        if args.json:
+            sys.stdout.write(json.dumps({"error": error_msg, "passed": False}) + "\n")
+        else:
+            sys.stderr.write(f"{RED}Error: {error_msg}{RESET}\n")
+        sys.exit(1)
+
     try:
         raw_diff = get_git_diff(
             staged=args.staged,
@@ -418,7 +439,18 @@ def main():
             sys.stderr.write(f"{RED}Error fetching git diff: {e}{RESET}\n")
         sys.exit(1)
 
-    allowed_patterns = [re.compile(p) for p in args.allowed_scope] if args.allowed_scope else None
+    # Compile allowed scope patterns with error handling
+    allowed_patterns = None
+    if args.allowed_scope:
+        try:
+            allowed_patterns = [re.compile(p) for p in args.allowed_scope]
+        except re.error as e:
+            error_msg = f"Invalid regex pattern in --allowed-scope: {e}"
+            if args.json:
+                sys.stdout.write(json.dumps({"error": error_msg, "passed": False}) + "\n")
+            else:
+                sys.stderr.write(f"{RED}Error: {error_msg}{RESET}\n")
+            sys.exit(1)
 
     result = audit_diff(
         diff_text=raw_diff,

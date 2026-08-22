@@ -42,7 +42,7 @@ python3 skills/diff-auditor/scripts/audit_diff.py --staged
 python3 skills/diff-auditor/scripts/audit_diff.py --base main
 
 # 4. Enforce strict scope (only allow modifications in src/ and tests/)
-python3 skills/diff-auditor/scripts/audit_diff.py --allowed-scope "^src/" "^tests/"
+python3 skills/diff-auditor/scripts/audit_diff.py --allowed-scope "^src/" --allowed-scope "^tests/" --strict
 
 # 5. Output machine-readable JSON for automated harnesses
 python3 skills/diff-auditor/scripts/audit_diff.py --json
@@ -53,11 +53,13 @@ python3 skills/diff-auditor/scripts/audit_diff.py --json
 ## 📋 Audit Dimensions & Checks
 
 ### 1. Docstring and Comment Preservation 📝
+
 - **Rule**: Never strip existing architectural explanations, method docstrings, or inline rationale comments unless explicitly instructed.
 - **Detection**: Flags diff deletions that remove multi-line docstrings (`"""`, `'''`), JSDoc (`/** ... */`), or mass comment deletions (`#`, `//`, `///`).
 - **Remediation**: Restore missing documentation blocks using `git checkout -p` or selective line restoration.
 
 ### 2. Stray Debug Statements & Breakpoints 🐛
+
 - **Rule**: No temporary debug logs or breakpoint triggers should ever make it into production commits.
 - **Detection**:
   - **Python**: `print(...)`, `import pdb`, `pdb.set_trace()`, `breakpoint()`, `ic(...)`
@@ -69,11 +71,13 @@ python3 skills/diff-auditor/scripts/audit_diff.py --json
 - **Remediation**: Remove debug lines or replace with standard project logging facilities at appropriate levels.
 
 ### 3. Scope Boundary Enforcement 🎯
+
 - **Rule**: Only files related to the specific task or issue should be modified.
 - **Detection**: Checks all modified paths against `--allowed-scope` patterns or sensitive file blacklists (`.env`, `credentials.json`, `*.pem`, `*.key`).
-- **Remediation**: Unstage or revert accidental edits with `git checkout -- <file>` or `git restore --staged <file>`.
+- **Remediation**: Unstage accidental edits with `git restore --staged -- <file>`. To discard working-tree changes (destructive), confirm intent then use `git restore -- <file>`.
 
 ### 4. Excessive Line Churn & Whole-File Rewrites 📊
+
 - **Rule**: Edits should be surgical. Replacing an entire 500-line file when only a 3-line bug fix was needed indicates brittle file operations.
 - **Detection**: Flags individual files where `added + deleted > threshold` (default: 500 lines).
 - **Remediation**: Use surgical edit tools (e.g. `replace_file_content` / targeted diff patches) rather than blind file rewrites.

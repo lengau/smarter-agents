@@ -14,7 +14,7 @@ class TestAuditDiff(unittest.TestCase):
 index e69de29..4b825dc 100644
 --- a/src/calculator.py
 +++ b/src/calculator.py
-@@ -1,3 +1,5 @@
+@@ -0,0 +1,3 @@
 +def add(a: int, b: int) -> int:
 +    \"\"\"Add two numbers.\"\"\"
 +    return a + b
@@ -30,7 +30,7 @@ index e69de29..4b825dc 100644
 index e69de29..4b825dc 100644
 --- a/src/calculator.py
 +++ b/src/calculator.py
-@@ -1,3 +1,6 @@
+@@ -0,0 +1,3 @@
 +def add(a: int, b: int) -> int:
 +    print(f"DEBUG: a={a}, b={b}")
 +    return a + b
@@ -46,7 +46,7 @@ index e69de29..4b825dc 100644
 index e69de29..4b825dc 100644
 --- a/src/index.ts
 +++ b/src/index.ts
-@@ -1,3 +1,6 @@
+@@ -0,0 +1,4 @@
 +export function calculate(val: number) {
 +  console.log("val is", val);
 +  return val * 2;
@@ -76,7 +76,7 @@ index 0000000..4b825dc
 index e69de29..4b825dc 100644
 --- a/src/service.py
 +++ b/src/service.py
-@@ -1,8 +1,3 @@
+@@ -1,8 +1,2 @@
 -'''
 -Detailed docstring explaining why this service exists.
 -It coordinates multiple microservices and handles retries.
@@ -97,7 +97,7 @@ index e69de29..4b825dc 100644
 index e69de29..4b825dc 100644
 --- a/config/database.yml
 +++ b/config/database.yml
-@@ -1,2 +1,2 @@
+@@ -1,1 +1,1 @@
 -host: localhost
 +host: remote.db
 """
