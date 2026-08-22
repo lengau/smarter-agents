@@ -23,7 +23,9 @@ This rule enforces strict operational procedures for reading, editing, and verif
 ### Rule 1: Freshness & Stale Buffer Verification
 
 1. **Inspect immediately before editing**: Inspect the target slice or symbol immediately prior to submitting a change.
-   Perform a write-time comparison between expected target content and current disk content; abort if they differ.
+   Perform an atomic, file-scoped compare-and-swap check using the COMPLETE pre-edit file snapshot; abort if ANY byte
+   of the file changed since the snapshot was taken (including unrelated bytes outside the target slice). This must be
+   a single atomic operation, not a separate read step followed by a separate write step.
 2. **Never assume line numbers remain static**: Any prior edit shifts line numbers. Re-anchor line ranges against current
    disk state.
 3. **Respect file conventions**: Match existing line endings (`\n` vs. `\r\n`), indentation (tabs vs. spaces, width),
@@ -63,7 +65,10 @@ When an edit or patch operation fails:
 
 1. **Syntax validation**: After applying edits, run a file-type-aware parser, syntax check, or linter (e.g. `ruff check`,
    `python3 -m py_compile`, `tsc --noEmit`) as the primary verification.
-2. **Supplemental diff check**: Check `git diff` as supplemental evidence to confirm that old and new target counts
+2. **Read-back verification**: Explicitly read back the edited slice after applying the edit and assert that (a) the
+   expected new content is present, and (b) post-edit match counts using the SAME search scope and matching semantics
+   as the pre-edit match-count check described in Rule 3, item 2.
+3. **Supplemental diff check**: Check `git diff` as supplemental evidence to confirm that old and new target counts
    match expected values and no unintended deletions or orphaned tokens occurred.
 
 ---
