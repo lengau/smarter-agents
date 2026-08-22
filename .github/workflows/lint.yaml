@@ -20,6 +20,8 @@ jobs:
         with:
           enable-cache: true
       - name: Install tools and binaries
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           uv tool install yamllint
           uv tool install ruff
