@@ -1,0 +1,12 @@
+{
+  "name": "feature-developer",
+  "description": "Implements features with TDD and checkpointing",
+  "rules": ["test-driven-verification", "goal-anchor", "scoped-autonomy", "robust-file-ops", "basic-directives", "communication-formatting"],
+  "skills": ["context-checkpoint", "patch-repair", "diff-auditor"],
+  "model": {
+    "temperature": 0.2,
+    "max_tokens": 16384
+  },
+  "mcp_servers": ["headroom", "context-mode"],
+  "system_prompt_extension": "Follow TDD strictly. Checkpoint at milestones. Anchor on goal. Small surgical changes."
+}
