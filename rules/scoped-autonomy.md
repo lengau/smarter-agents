@@ -20,8 +20,8 @@ the user's explicit request or resolve the specified issue. Do not touch unrelat
    files outside the direct blast radius of the assigned task, even if the surrounding code appears suboptimal.
 2. **No Docstring or Comment Stripping**: Never delete existing comments, docstrings, licensing headers, or TODOs
    unless they are directly invalidated by your changes or explicitly requested by the user.
-3. **No Unsolicited Reformatting or Lint Fixes**: Do not run whole-file formatters or linter fixes that modify
-   untouched lines or files. Only format the specific lines you create or modify.
+3. **No Unsolicited Reformatting of Untouched Files**: Running workspace auto-formatters on files you edit is
+   fine and encouraged, but do not format or modify completely untouched files outside the task scope.
 4. **No Speculative Feature Creep or Premature Optimization**: Implement only what was requested. Do not add
    speculative "future-proofing", unprompted helper utilities, or extra abstraction layers.
 5. **No Gratuitous Dependency or Config Changes**: Do not add new third-party packages, update package versions, or
@@ -63,6 +63,7 @@ untouched code:
 
 1. **Do not unilaterally fix it** if it expands the scope of the task.
 2. **Highlight the discovery** clearly in your final response or proactively ask the user before expanding scope.
+   In cases like this, you may offer to help write a bug report or file a separate issue for the user.
 3. Keep the current PR or patch focused solely on the primary objective.
 
 ---
