@@ -1,0 +1,12 @@
+{
+  "name": "bug-fixer",
+  "description": "Diagnoses and fixes bugs with minimal targeted changes",
+  "rules": ["patch-repair", "robust-file-ops", "test-driven-verification", "scoped-autonomy", "goal-anchor"],
+  "skills": ["patch-repair", "diff-auditor", "context-checkpoint"],
+  "model": {
+    "temperature": 0.1,
+    "max_tokens": 8192
+  },
+  "mcp_servers": ["headroom"],
+  "system_prompt_extension": "Follow 5-step diagnostic: Inspect → Locate → Understand → Fix → Re-verify. Never guess. Smallest fix only."
+}
