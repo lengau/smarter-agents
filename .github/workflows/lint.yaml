@@ -39,7 +39,7 @@ jobs:
             jq -r .tag_name)
           # Fallback to v1.7.12 if detection fails
           ACTIONLINT_VER=${ACTIONLINT_VER:-v1.7.12}
-          ACTIONLINT_URL="https://raw.githubusercontent.com/rhysd/actionlint/v${ACTIONLINT_VER}/install.sh"
+          ACTIONLINT_URL="https://raw.githubusercontent.com/rhysd/actionlint/${ACTIONLINT_VER}/install.sh"
           curl -sSfL "$ACTIONLINT_URL" \
             | sh -s -- -b "$HOME/.local/bin"
       - name: Verify tool installation
