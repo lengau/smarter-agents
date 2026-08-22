@@ -1,8 +1,14 @@
+---
+applyTo: '**'
+description: 'Operate with surgical precision: modify only files, functions, and lines strictly required for the task.'
+---
+
 # Rule: Scoped Autonomy (Prevent Scope Creep & Collateral Damage)
 
 ## Core Directive
 
-Operate with surgical precision. Modify **only** the files, functions, and lines of code strictly required to fulfill the user's explicit request or resolve the specified issue. Do not touch unrelated code.
+Operate with surgical precision. Modify **only** the files, functions, and lines of code strictly required to fulfill
+the user's explicit request or resolve the specified issue. Do not touch unrelated code.
 
 ---
 
@@ -10,18 +16,24 @@ Operate with surgical precision. Modify **only** the files, functions, and lines
 
 ### 🚫 Forbidden Behaviors
 
-1. **No "Boy Scout" or Opportunistic Refactoring**: Never rewrite, modernize, or restructure functions, classes, or files outside the direct blast radius of the assigned task, even if the surrounding code appears suboptimal.
-2. **No Docstring or Comment Stripping**: Never delete existing comments, docstrings, licensing headers, or TODOs unless they are directly invalidated by your changes or explicitly requested by the user.
-3. **No Unsolicited Reformatting or Lint Fixes**: Do not run whole-file formatters or linter fixes that modify untouched lines or files. Only format the specific lines you create or modify.
-4. **No Speculative Feature Creep or Premature Optimization**: Implement only what was requested. Do not add speculative "future-proofing", unprompted helper utilities, or extra abstraction layers.
-5. **No Gratuitous Dependency or Config Changes**: Do not add new third-party packages, update package versions, or modify configuration files unless explicitly required to solve the task.
+1. **No "Boy Scout" or Opportunistic Refactoring**: Never rewrite, modernize, or restructure functions, classes, or
+   files outside the direct blast radius of the assigned task, even if the surrounding code appears suboptimal.
+2. **No Docstring or Comment Stripping**: Never delete existing comments, docstrings, licensing headers, or TODOs
+   unless they are directly invalidated by your changes or explicitly requested by the user.
+3. **No Unsolicited Reformatting or Lint Fixes**: Do not run whole-file formatters or linter fixes that modify
+   untouched lines or files. Only format the specific lines you create or modify.
+4. **No Speculative Feature Creep or Premature Optimization**: Implement only what was requested. Do not add
+   speculative "future-proofing", unprompted helper utilities, or extra abstraction layers.
+5. **No Gratuitous Dependency or Config Changes**: Do not add new third-party packages, update package versions, or
+   modify configuration files unless explicitly required to solve the task.
 
 ---
 
 ## 2. The "Diff Budget" Mindset
 
 Treat every added, modified, or deleted line of code as an expenditure of a strict "diff budget":
-- **Minimal Footprint**: What is the smallest, cleanest change that completely and robustly satisfies the user request?
+
+- **Minimal Footprint**: What is the smallest, cleanest change that completely and robustly satisfies the request?
 - **Locality of Change**: Keep changes as local as possible to the affected component.
 - **Traceability**: Every line in your diff must directly trace back to a specific requirement in the prompt.
 
@@ -31,11 +43,14 @@ Treat every added, modified, or deleted line of code as an expenditure of a stri
 
 Follow this workflow when modifying code:
 
-1. **Identify Target Symbols**: Determine the exact functions, classes, or config keys that need modification before making any edits.
-2. **Preserve Surrounding Context**: Match the existing style, conventions, naming patterns, and error-handling paradigms of the surrounding file.
-3. **Audit the Diff**: Before marking any task complete, review the exact diff (`git diff` or review tool output) line by line.
+1. **Identify Target Symbols**: Determine the exact functions, classes, or config keys that need modification before
+   making any edits.
+2. **Preserve Surrounding Context**: Match the existing style, conventions, naming patterns, and error-handling
+   paradigms of the surrounding file.
+3. **Audit the Diff**: Before marking any task complete, review the exact diff (`git diff` or review tool output)
+   line by line.
 4. **Self-Accounting Question**:
-   > *"If the user asks why this specific line was changed, can I justify it as strictly necessary for their request?"*
+   > "If the user asks why this specific line was changed, can I justify it as strictly necessary for their request?"
    - If **yes**: Keep the change.
    - If **no**: Revert the change immediately.
 
@@ -43,7 +58,9 @@ Follow this workflow when modifying code:
 
 ## 4. When Out-of-Scope Changes Appear Necessary
 
-If solving the issue genuinely exposes a critical bug, security flaw, or blocking architecture limitation in untouched code:
+If solving the issue genuinely exposes a critical bug, security flaw, or blocking architecture limitation in
+untouched code:
+
 1. **Do not unilaterally fix it** if it expands the scope of the task.
 2. **Highlight the discovery** clearly in your final response or proactively ask the user before expanding scope.
 3. Keep the current PR or patch focused solely on the primary objective.
