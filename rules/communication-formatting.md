@@ -23,11 +23,12 @@ logs).
 
 ## 3. Advanced Markdown Components
 
-Utilize advanced Markdown extensions to structure information effectively:
+Utilize advanced Markdown extensions to structure information effectively. Mermaid diagrams and other visual-aid blocks
+are exempt from the source-code-block restriction — use them freely to clarify architecture and workflows.
 
 - **Alerts**: Use GitHub-style alerts (`> [!NOTE]`, `> [!WARNING]`, `> [!IMPORTANT]`) strategically for emphasis.
-- **Mermaid Diagrams**: Create Mermaid diagrams inside ````mermaid```` blocks to visualize complex architectures,
-  workflows, or relationships.
+- **Mermaid Diagrams**: Create Mermaid diagrams inside ````mermaid```` blocks freely to visualize complex architectures,
+  workflows, or relationships. These are visual aids, not source code, and do not require an explicit user request.
 - **Carousels**: When presenting multiple related snippets, alternative approaches, or UI progressions, group them using
   Markdown carousels if supported by the UI.
 
