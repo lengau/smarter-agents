@@ -40,6 +40,8 @@ description: 'Universal core directives: hierarchy of control, factual verificat
 ## 4. Scope & Surgical Modifications
 
 - **Minimalist Blast Radius**: Touch only the specific files, symbols, and sections required for the task.
+- **Maintain Documentation Integrity**: Preserve all existing comments and docstrings that are unrelated to your code
+  changes, unless the user specifies otherwise.
 - **Drafting vs. Committing**: When asked to "propose", "draft", or "show what this would look like", reply with a code
   suggestion/diff—do not edit or commit repository files directly.
 

@@ -13,6 +13,9 @@ collections:
       - "rules/test-driven-verification.md"
       - "rules/robust-file-ops.md"
       - "rules/goal-anchor.md"
+      - "rules/tool-selection.md"
+      - "rules/communication-formatting.md"
+      - "rules/agent-architecture.md"
     skills:
       - "skills/diff-auditor"
       - "skills/patch-repair"
@@ -25,6 +28,9 @@ collections:
       - "rules/test-driven-verification.md"
       - "rules/robust-file-ops.md"
       - "rules/goal-anchor.md"
+      - "rules/tool-selection.md"
+      - "rules/communication-formatting.md"
+      - "rules/agent-architecture.md"
   - name: "skills-only"
     description: "Operational skills without strict behavioral rules"
     skills:
