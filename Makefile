@@ -104,4 +104,4 @@ test-smoke: ## Run smoke tests
 	@echo "Smoke tests passed."
 
 .PHONY: test
-test: test-smoke ## Run tests (alias for test-smoke)
+test: test-smoke test-py ## Run all tests (smoke + Python unit tests)
