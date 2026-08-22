@@ -1,0 +1,12 @@
+{
+  "name": "security-auditor",
+  "description": "Scans for secrets, supply-chain risks, credential leaks",
+  "rules": ["basic-directives", "scoped-autonomy", "robust-file-ops", "diff-auditor"],
+  "skills": ["diff-auditor", "patch-repair"],
+  "model": {
+    "temperature": 0.0,
+    "max_tokens": 8192
+  },
+  "mcp_servers": [],
+  "system_prompt_extension": "SECURITY FIRST. Never read secret files. Redact all credentials in output. Flag .env, *.pem, *.key, credentials.json, kubeconfig, SSH keys. Audit diffs for accidental staging."
+}
