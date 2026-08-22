@@ -26,7 +26,7 @@ jobs:
           cache: true
       - name: Install tools and binaries
         run: |
-          uv tool install yamllint 
+          uv tool install yamllint
           uv tool install ruff
           mkdir -p "$HOME/.local/bin"
           # Install yamlfmt via go
