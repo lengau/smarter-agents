@@ -30,6 +30,8 @@ Install Smarter Agents rules and skills globally for yourself:
 | **Sloppy Engineering** | Declares tasks done without testing | `rules/test-driven-verification.md` |
 | **Scope Overreach** | Eager refactors & stripping comments | `rules/scoped-autonomy.md` & `skills/diff-auditor` |
 | **Brittle File Edits** | Stale buffers & chunk truncation | `rules/robust-file-ops.md` & `skills/patch-repair` |
+| **Test Gaming** | Agent reads tests to pass them | `rules/test-harness-isolation.md` |
+| **CI Bypass** | PRs merged without validation | `rules/pr-ci-update.md` |
 
 ---
 
@@ -46,8 +48,14 @@ Install Smarter Agents rules and skills globally for yourself:
 │   ├── basic-directives.md
 │   ├── scoped-autonomy.md
 │   ├── test-driven-verification.md
+│   ├── test-harness-isolation.md
 │   ├── robust-file-ops.md
-│   └── goal-anchor.md
+│   ├── goal-anchor.md
+│   ├── tool-selection.md
+│   ├── communication-formatting.md
+│   ├── agent-architecture.md
+│   ├── system-prompt-extensions.md
+│   └── pr-ci-update.md
 │
 └── skills/                     # Executable workflows and verification tools
     ├── diff-auditor/           # Git diff boundary & AST sanity auditor

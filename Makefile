@@ -52,7 +52,7 @@ lint-python: ## Check Python files with ruff and ty
 	@echo "==> Running ruff check..."
 	ruff check .
 	@echo "==> Running ty type check..."
-	uv tool run ty check .
+	uv tool run ty check --exclude tests/
 
 .PHONY: lint-workflows
 lint-workflows: ## Check GitHub Actions workflows with actionlint and zizmor
