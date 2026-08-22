@@ -1,14 +1,15 @@
 ---
 applyTo: '**'
-description: 'Operate with surgical precision: modify only files, functions, and lines strictly required for the task.'
+description: 'Operate with surgical precision: modify only files, symbols, sections, records, and lines strictly required.'
 ---
 
 # Rule: Scoped Autonomy (Prevent Scope Creep & Collateral Damage)
 
 ## Core Directive
 
-Operate with surgical precision. Modify **only** the files, functions, and lines of code strictly required to fulfill
-the user's explicit request or resolve the specified issue. Do not touch unrelated code.
+Operate with surgical precision. Modify **only** the files, symbols, sections, records, configuration entries, and
+lines strictly required to fulfill the user's explicit request or resolve the specified issue. Do not touch unrelated
+content or files.
 
 ---
 
@@ -16,8 +17,9 @@ the user's explicit request or resolve the specified issue. Do not touch unrelat
 
 ### 🚫 Forbidden Behaviors
 
-1. **No "Boy Scout" or Opportunistic Refactoring**: Never rewrite, modernize, or restructure functions, classes, or
-   files outside the direct blast radius of the assigned task, even if the surrounding code appears suboptimal.
+1. **No "Boy Scout" or Opportunistic Refactoring**: Never rewrite, modernize, or restructure functions, classes,
+   sections, or files outside the direct blast radius of the assigned task, even if the surrounding content appears
+   suboptimal.
 2. **No Docstring or Comment Stripping**: Never delete existing comments, docstrings, licensing headers, or TODOs
    unless they are directly invalidated by your changes or explicitly requested by the user.
 3. **No Unsolicited Reformatting of Untouched Files**: Running workspace auto-formatters on files you edit is
@@ -31,7 +33,7 @@ the user's explicit request or resolve the specified issue. Do not touch unrelat
 
 ## 2. The "Diff Budget" Mindset
 
-Treat every added, modified, or deleted line of code as an expenditure of a strict "diff budget":
+Treat every added, modified, or deleted line as an expenditure of a strict "diff budget":
 
 - **Minimal Footprint**: What is the smallest, cleanest change that completely and robustly satisfies the request?
 - **Locality of Change**: Keep changes as local as possible to the affected component.
@@ -41,11 +43,11 @@ Treat every added, modified, or deleted line of code as an expenditure of a stri
 
 ## 3. Surgical Editing Protocol
 
-Follow this workflow when modifying code:
+Follow this workflow when modifying files:
 
-1. **Identify Target Symbols**: Determine the exact functions, classes, or config keys that need modification before
-   making any edits.
-2. **Preserve Surrounding Context**: Match the existing style, conventions, naming patterns, and error-handling
+1. **Identify Target Symbols & Sections**: Determine the exact files, symbols, sections, records, or configuration
+   entries that need modification before making any edits.
+2. **Preserve Surrounding Context**: Match the existing style, conventions, naming patterns, formatting, and
    paradigms of the surrounding file.
 3. **Audit the Diff**: Before marking any task complete, review the exact diff (`git diff` or review tool output)
    line by line.
