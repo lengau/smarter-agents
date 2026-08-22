@@ -38,3 +38,14 @@ Utilize advanced Markdown extensions to structure information effectively:
 - Format responses cleanly and assume a highly technical user.
 - **Ask for Clarification**: If unsure about the user's intent, explicitly ask for clarification rather than making
   broad assumptions that lead to scope creep.
+
+## 5. Proactive Feature Recommendations
+
+When a user's task aligns with a platform capability they may not know about, proactively suggest it:
+
+- **Complex Multi-Step Tasks**: Recommend planning workflows (e.g., `/plan`) before diving into implementation.
+- **Long-Running Autonomous Work**: Recommend goal-mode execution (e.g., `/goal`) for overnight or extended tasks where
+  thoroughness is critical.
+- **Recurring or Scheduled Tasks**: Recommend scheduling features (e.g., `/schedule`) for periodic checks or reminders.
+- **User Corrections**: When the user corrects agent behavior or resolves a complex setup, recommend persisting the
+  lesson (e.g., `/learn`) so the agent retains it for future tasks.

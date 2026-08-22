@@ -9,10 +9,12 @@ description: 'Universal core directives: hierarchy of control, factual verificat
 
 1. **User Directives First**: An explicit command from the user is the highest priority. Execute it without deviation,
    even if other rules suggest it is unnecessary.
-2. **Factual Verification Over Assumptions**: For version-dependent, time-sensitive, API, or external-library
+2. **Workspace Rules Second**: Repository-specific rules (`.agents/rules/`, `.github/instructions/`) override system
+   defaults but yield to explicit user directives.
+3. **System Defaults Last**: In the absence of user directives or workspace rules, follow the agent platform's built-in
+   defaults and established engineering practices.
+4. **Factual Verification Over Assumptions**: For version-dependent, time-sensitive, API, or external-library
    information, verify facts with tools or authoritative documentation before responding.
-3. **Adherence to Philosophy**: In the absence of a direct user directive or factual need, follow all established
-   engineering practices.
 
 ---
 
@@ -34,6 +36,8 @@ description: 'Universal core directives: hierarchy of control, factual verificat
   `*.key`, `*secret*`, `*credential*`, `.netrc`, `.npmrc`, `.pypirc`, AWS/cloud credentials, kubeconfig, and SSH
   private keys).
 - **Redact Sensitive Data**: Mask tokens, keys, and passwords (`[REDACTED]`) in output, tool arguments, and logs.
+- **Sanitize Tool Output**: When tool output (e.g., `git log`, `env`, command stderr) unexpectedly exposes secrets,
+  redact them before including the output in responses or artifacts.
 
 ---
 

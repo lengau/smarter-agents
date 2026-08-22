@@ -20,6 +20,8 @@ description: 'Mitigate context amnesia and specification drift with invariant go
   deliverable.
 - **Re-Anchor on Drift**: Review initial prompt metadata, issue descriptions, or specifications when requirements
   become ambiguous after multiple turns.
+- **Transcript Recovery**: When earlier conversation context has been truncated or compacted, consult conversation
+  transcript logs to recover the original goals, constraints, and decisions before proceeding.
 - **Delta-to-Goal Audit**: Before completing a task, verify the exact requested problem is solved without regressions,
   scope bloat, or dropped edge cases.
 - **Reject Local Optimization**: Do not suppress errors with broad exception handling, drop requirements to simplify
