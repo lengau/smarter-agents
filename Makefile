@@ -85,8 +85,11 @@ setup-hooks: ## Install git hooks using prek
 	@echo "==> Installing git hooks with prek..."
 	uv tool run prek install
 
-.PHONY: test
-test: ## Run tests
-	@echo "==> Running tests..."
+.PHONY: test-smoke
+test-smoke: ## Run smoke tests
+	@echo "==> Running smoke tests..."
 	python3 installer.py --help > /dev/null
-	@echo "All tests passed."
+	@echo "Smoke tests passed."
+
+.PHONY: test
+test: test-smoke ## Run tests (alias for test-smoke)

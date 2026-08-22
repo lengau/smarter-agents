@@ -58,5 +58,5 @@ jobs:
           actionlint -version
       - name: Run make lint
         run: make lint
-      - name: Run make test
-        run: make test
+      - name: Run make test-smoke
+        run: make test-smoke
