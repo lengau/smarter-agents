@@ -46,8 +46,10 @@ Agents manage checkpoints directly using file editing tools (`write_to_file`, `r
 
 1. **Initialize**: Copy and populate `templates/checkpoint.template.json` to `checkpoint.json` in external storage.
 2. **Update**: Add completed milestones, decisions, or active context directly to `checkpoint.json`.
-3. **Sync Markdown**: Keep `SESSION.md` synchronized with the structured data for rapid prompt re-ingestion.
+3. **Sync Markdown**: Regenerate `SESSION.md` from `checkpoint.json` to keep synchronized with authoritative structured data for rapid prompt re-ingestion.
 4. **Validate**: Ensure `checkpoint.json` conforms to `schemas/checkpoint.schema.json`.
+
+**Note**: `checkpoint.json` is the authoritative source of truth. `SESSION.md` is a derived human-readable view.
 
 ---
 
@@ -55,7 +57,7 @@ Agents manage checkpoints directly using file editing tools (`write_to_file`, `r
 
 Upon entering a resumed session or detecting context compaction:
 
-1. **Read `checkpoint.json` / `SESSION.md`** from external storage to reconstruct exact task state.
+1. **Read `checkpoint.json`** from external storage to reconstruct exact task state (use `SESSION.md` if JSON unavailable).
 2. **Re-anchor on Goal**: Validate current plan against `goal.primary` and `goal.scope_boundaries`.
 3. **Preserve Verified Milestones**: Do not re-implement or undo work recorded as completed.
 4. **Respect Settled Decisions**: Follow recorded architectural choices without reopening debate.
