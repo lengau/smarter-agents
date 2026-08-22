@@ -19,19 +19,26 @@ jobs:
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           enable-cache: true
-      - name: Set up Go
-        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff
-        with:
-          go-version: '1.22'
-          cache: true
       - name: Install tools and binaries
         run: |
           uv tool install yamllint
           uv tool install ruff
           mkdir -p "$HOME/.local/bin"
-          # Install yamlfmt via go
-          go install github.com/google/yamlfmt/cmd/yamlfmt@v0.13.0
-          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          # Install yamlfmt via gh CLI
+          # Determine architecture
+          ARCH=$(uname -m)
+          # Ensure supported architecture (x86_64 or aarch64)
+          if [ "$ARCH" != "x86_64" ] && [ "$ARCH" != "aarch64" ]; then
+            echo "Unsupported architecture: $ARCH" && exit 1
+          fi
+          # Get latest yamlfmt version tag
+          YAMLFMT_VER=$(gh release list -R google/yamlfmt --limit 1 | awk '{print $1}')
+          # Download the appropriate tarball
+          gh release download "$YAMLFMT_VER" -R google/yamlfmt -p "yamlfmt_*_Linux_${ARCH}.tar.gz"
+          tar -xzf "yamlfmt_*_Linux_${ARCH}.tar.gz" yamlfmt
+          mv yamlfmt "$HOME/.local/bin/"
+          # Clean up downloaded archive
+          rm "yamlfmt_*_Linux_${ARCH}.tar.gz"
           # Install jq for JSON parsing
           sudo apt-get update && sudo apt-get install -y jq
           # Install actionlint via installer script
