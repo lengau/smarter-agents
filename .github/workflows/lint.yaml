@@ -31,9 +31,11 @@ jobs:
           # Install yamlfmt via go
           go install github.com/google/yamlfmt/cmd/yamlfmt@v0.13.0
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          # Install jq for JSON parsing
+          sudo apt-get update && sudo apt-get install -y jq
           # Install actionlint via installer script
           ACTIONLINT_VER=$(curl -s "https://api.github.com/repos/rhysd/actionlint/releases/latest" |
-            grep -Po '"tag_name": "\K[^"]*')
+            jq -r .tag_name)
           # Fallback to v1.7.12 if detection fails
           ACTIONLINT_VER=${ACTIONLINT_VER:-v1.7.12}
           ACTIONLINT_URL="https://raw.githubusercontent.com/rhysd/actionlint/v${ACTIONLINT_VER}/install.sh"
