@@ -17,10 +17,9 @@ logs).
 
 ## 2. Navigation & Referencing
 
-- **Mandatory Symbol Linking**: Always create clickable links for files and code symbols (classes, types, functions)
-  using the file scheme. Use GitHub-style markdown links (e.g., `[filename](file:///absolute/path/to/file)`).
-- **Line Ranges**: Link to specific line ranges where applicable (e.g.,
-  `[file.py:L10-20](file:///path/to/file#L10-L20)`).
+- **Symbol Linking**: Link files and code symbols with repository-relative or host-native references when supported.
+- **Line Ranges**: Add line anchors when the selected reference scheme supports them. Otherwise, use a plain file path
+  and line range.
 
 ## 3. Advanced Markdown Components
 
