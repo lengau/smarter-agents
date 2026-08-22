@@ -5,6 +5,7 @@ PYTHON_SOURCES := installer.py
 YAML_SOURCES := collections.yaml .yamllint.yaml .coderabbit.yaml .pre-commit-config.yaml .github/workflows/*.yaml
 JSON_SOURCES := .pymarkdown.json
 MD_SOURCES := README.md rules/*.md
+WORKFLOW_SOURCES := .github/workflows/*.yaml
 
 .DEFAULT_GOAL := help
 
@@ -15,7 +16,7 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: lint
-lint: lint-yaml lint-json lint-md lint-python lint-hooks ## Run all repository linters
+lint: lint-yaml lint-json lint-md lint-python lint-workflows lint-hooks ## Run all repository linters
 
 .PHONY: lint-yaml
 lint-yaml: ## Check YAML files with yamlfmt and yamllint
@@ -40,6 +41,13 @@ lint-python: ## Check Python files with ruff and ty
 	ruff check $(PYTHON_SOURCES)
 	@echo "==> Running ty type check..."
 	uv tool run ty check $(PYTHON_SOURCES)
+
+.PHONY: lint-workflows
+lint-workflows: ## Check GitHub Actions workflows with actionlint and zizmor
+	@echo "==> Running actionlint..."
+	actionlint $(WORKFLOW_SOURCES)
+	@echo "==> Running zizmor audit..."
+	uv tool run zizmor .
 
 .PHONY: lint-hooks
 lint-hooks: ## Run prek git hook validation across repository
