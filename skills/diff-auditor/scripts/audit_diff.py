@@ -343,25 +343,26 @@ def audit_diff(
                 stripped = line.lstrip("-").strip()
 
                 # Check if we're starting a multi-line docstring
-                if not in_multiline_docstring:
-                    if stripped.startswith('"""') or stripped.startswith("'''"):
-                        delimiter = '"""' if stripped.startswith('"""') else "'''"
-                        deleted_doc_lines.append(stripped)
-                        # Check if this is a one-line docstring (opening and closing on same line)
-                        if stripped.count(delimiter) >= 2 and len(stripped) > len(delimiter):
-                            # One-line docstring, don't enter multi-line mode
-                            pass
-                        else:
-                            # Multi-line docstring started
-                            in_multiline_docstring = True
-                            docstring_delimiter = delimiter
-                        continue
+                if not in_multiline_docstring and stripped.startswith(('"""', "'''")):
+                    delimiter = '"""' if stripped.startswith('"""') else "'''"
+                    deleted_doc_lines.append(stripped)
+                    # Check if this is a one-line docstring (opening and closing on same line)
+                    if stripped.count(delimiter) >= 2 and len(stripped) > len(
+                        delimiter
+                    ):
+                        # One-line docstring, don't enter multi-line mode
+                        pass
+                    else:
+                        # Multi-line docstring started
+                        in_multiline_docstring = True
+                        docstring_delimiter = delimiter
+                    continue
 
                 # If we're inside a multi-line docstring, count every deleted line
                 if in_multiline_docstring:
                     deleted_doc_lines.append(stripped)
                     # Check if this line closes the docstring
-                    if docstring_delimiter in stripped:
+                    if docstring_delimiter and docstring_delimiter in stripped:
                         in_multiline_docstring = False
                         docstring_delimiter = None
                     continue
