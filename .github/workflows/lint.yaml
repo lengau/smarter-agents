@@ -35,10 +35,11 @@ jobs:
           # Install jq for JSON parsing
           sudo apt-get update && sudo apt-get install -y jq
           # Install actionlint via installer script
-          ACTIONLINT_VER=$(curl -s "https://api.github.com/repos/rhysd/actionlint/releases/latest" |
-            jq -r .tag_name)
-          # Fallback to v1.7.12 if detection fails
-          ACTIONLINT_VER=${ACTIONLINT_VER:-v1.7.12}
+          ACTIONLINT_VER=$(curl -sSf "https://api.github.com/repos/rhysd/actionlint/releases/latest" \
+              | jq -r '.tag_name // empty')
+          if [ -z "$ACTIONLINT_VER" ] || [ "$ACTIONLINT_VER" = "null" ]; then
+              ACTIONLINT_VER="v1.7.12"
+          fi
           ACTIONLINT_URL="https://raw.githubusercontent.com/rhysd/actionlint/${ACTIONLINT_VER}/install.sh"
           curl -sSfL "$ACTIONLINT_URL" \
             | sh -s -- -b "$HOME/.local/bin"
