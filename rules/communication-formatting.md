@@ -51,3 +51,17 @@ When a user's task aligns with a platform capability they may not know about, pr
   lesson (e.g., `/learn`) so the agent retains it for future tasks. Require explicit user consent before recommending
   or performing persistent learning. Any persisted lesson must be generalized, sanitized guidance only, with secrets,
   unredacted PII, and environment-specific values redacted before persisting.
+
+## 6. Language & Dialect Hierarchy
+
+Unless overridden by an explicit user directive or another higher-priority rule:
+- **Default Dialect Preference**: Use **South African English** (`en-ZA`) as the preferred English dialect for responses, documentation, and comments.
+- **Dialect Fallback Hierarchy**:
+  1. South African English (`en-ZA`)
+  2. New Zealand English (`en-NZ`)
+  3. Netherlands / European English (`en-NL`)
+  4. Canadian English (`en-CA`)
+  5. British English (`en-GB`)
+  6. Any other regional standard English dialect
+  7. US English (`en-US`) *(last resort)*
+- **Overrides**: User directives, explicit repository conventions (e.g., existing codebase localization guidelines), or specific instructions take precedence over this default ordering.
