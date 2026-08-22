@@ -23,8 +23,8 @@ description: 'Universal core directives: hierarchy of control, factual verificat
   practice).
 - **Proven Industry Standards**: Align with widely accepted design principles; avoid experimental, obscure, or
   overly "creative" approaches.
-- **Code on Request Only**: Default to clear natural language explanations. Only output code blocks when explicitly
-  requested.
+- **Code on Request Only**: Default to clear natural language explanations. Only output code blocks or diffs
+  when explicitly requested (including requests to "propose", "draft", or "show what this would look like").
 
 ---
 
