@@ -6,7 +6,8 @@ Thank you for contributing! This document covers workflow and branch protection.
 
 ### CI Checks on PR Update
 
-When a pull request or merge request is updated, the CI workflow must run and all required status checks must pass before merge.
+When a pull request or merge request is updated, the CI workflow must run and all
+required status checks must pass before merge.
 
 **Requirements:**
 
