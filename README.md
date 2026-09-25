@@ -28,7 +28,7 @@ Install Smarter Agents rules and skills globally for yourself:
 | :--- | :--- | :--- |
 | **Context Amnesia** | Compaction strips goals | `rules/goal-anchor.md` & `skills/context-checkpoint` |
 | **Sloppy Engineering** | Declares tasks done without testing | `rules/test-driven-verification.md` |
-| **Scope Overreach** | Eager refactors & stripping comments | `rules/scoped-autonomy.md` & `skills/diff-auditor` |
+| **Scope Overreach** | Eager refactors & stripping comments | `rules/basic-directives.md` (§4) & `skills/diff-auditor` |
 | **Brittle File Edits** | Stale buffers & chunk truncation | `rules/robust-file-ops.md` & `skills/patch-repair` |
 
 ---
@@ -44,7 +44,6 @@ Install Smarter Agents rules and skills globally for yourself:
 │
 ├── rules/                      # Behavioral guardrails and reasoning instructions
 │   ├── basic-directives.md
-│   ├── scoped-autonomy.md
 │   ├── test-driven-verification.md
 │   ├── robust-file-ops.md
 │   └── goal-anchor.md

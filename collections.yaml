@@ -9,7 +9,6 @@ collections:
     description: "Full suite of foundational rules and verification skills"
     rules:
       - "rules/basic-directives.md"
-      - "rules/scoped-autonomy.md"
       - "rules/test-driven-verification.md"
       - "rules/robust-file-ops.md"
       - "rules/goal-anchor.md"
@@ -25,7 +24,6 @@ collections:
     description: "Only directive rules for agent reasoning and safety"
     rules:
       - "rules/basic-directives.md"
-      - "rules/scoped-autonomy.md"
       - "rules/test-driven-verification.md"
       - "rules/robust-file-ops.md"
       - "rules/goal-anchor.md"

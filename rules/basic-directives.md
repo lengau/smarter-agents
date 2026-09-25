@@ -53,6 +53,49 @@ description: 'Universal core directives: hierarchy of control, factual verificat
 - **Drafting vs. Committing**: When asked to "propose", "draft", or "show what this would look like", reply with a code
   suggestion/diff—do not edit or commit repository files directly.
 
+### 4.1 Scope Boundaries & Prohibitions
+
+1. **No "Boy Scout" or Opportunistic Refactoring**: Never rewrite, modernize, or restructure functions, classes,
+   sections, or files outside the direct blast radius, even if surrounding content appears suboptimal.
+2. **No Docstring or Comment Stripping**: Never delete existing comments, docstrings, licensing headers, or TODOs
+   unless directly invalidated by your changes or explicitly requested.
+3. **No Unsolicited Reformatting of Untouched Files**: Running auto-formatters on files you edit is fine, but do not
+   format untouched files outside task scope.
+4. **No Speculative Feature Creep or Premature Optimization**: Implement only what was requested. Do not add
+   speculative "future-proofing", helper utilities, or abstraction layers.
+5. **No Gratuitous Dependency or Config Changes**: Do not add new packages, update versions, or modify config files
+   unless explicitly required.
+
+### 4.2 Diff Budget Mindset
+
+Treat every added, modified, or deleted line as expenditure of strict "diff budget":
+
+- **Minimal Footprint**: Smallest, cleanest change that satisfies request?
+- **Locality of Change**: Keep changes local to affected component.
+- **Traceability**: Every diff line must trace back to prompt requirement.
+
+### 4.3 Surgical Editing Protocol
+
+1. **Identify Target Symbols & Sections**: Determine exact files, symbols, sections requiring modification before editing.
+2. **Preserve Surrounding Context**: Match existing style, conventions, naming, formatting, paradigms.
+3. **Audit the Diff**: Review exact diff (`git diff`) line by line before completing task.
+4. **Self-Accounting Question**: "If user asks why this line changed, can I justify as strictly necessary?"
+   - If yes: keep. If no: revert.
+
+### 4.4 When Out-of-Scope Changes Appear Necessary
+
+If solving issue exposes critical bug, security flaw, or blocking limitation in untouched code:
+
+1. Do not unilaterally fix if it expands scope.
+2. Highlight discovery clearly or ask user before expanding scope; offer to file separate issue.
+3. Keep current PR focused on primary objective.
+
+### 4.5 Examples
+
+**Non-Compliant (Scope Creep):** User asks *"Fix off-by-one in `calculate_tax()`."* Agent fixes it *plus* replaces all `var` with `let`/`const`, deletes JSDoc, renames `TaxHelper` → `TaxService`.
+
+**Compliant:** Changes `i <= max` to `i < max` in `calculate_tax()`, adds unit test for boundary, leaves other functions intact.
+
 ---
 
 ## 5. Documentation & Instructions Standards
