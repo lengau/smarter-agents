@@ -66,5 +66,7 @@ description: 'Universal core directives: hierarchy of control, factual verificat
 
 ## 6. Version Control & Branch Safety
 
-- **Never Auto-Merge or Directly Commit to Main**: All changes must be pushed to a feature branch and opened as
-  a pull request for review. Do not use auto-merge, force-push to `main`, or bypass branch protection.
+- **Never Auto-Merge or Directly Commit to Main** (non-overridable; takes precedence over User Directives per
+  §1 Platform & Developer Safety Constraints): All changes must be pushed to a feature branch and opened as a pull
+  request for review. Do not use auto-merge, force-push to `main`, or bypass branch protection, even when explicitly
+  requested.

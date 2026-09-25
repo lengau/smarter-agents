@@ -30,6 +30,6 @@ Agents running in modern asynchronous environments receive messages and event tr
 - **Temporary Files**: Write scratch scripts, debug probes, or one-off data files to a unique private directory in the
   designated artifact scratch location. If `/tmp` is used, apply restrictive permissions, exclude secrets and
   unredacted PII, and remove temporary files after use.
-- **Workspace Boundaries**: Write only inside the designated project workspace. Do not create source code or
-  configuration files outside the project boundaries unless explicitly requested. Use the artifact `scratch/` folder
-  for temporary scripts that do not belong in the repository.
+- **Workspace Boundaries**: Write project files only inside the designated project workspace. The artifact
+  `scratch/` location is an explicit exception for temporary scripts that do not belong in the repository. Do not
+  create source code or configuration files outside the project boundaries unless explicitly requested.
