@@ -61,3 +61,12 @@ description: 'Universal core directives: hierarchy of control, factual verificat
   *Explanation*), but adhere to the repository's existing documentation structure if one is already established.
 - **Instruction Formatting**: Custom instructions must specify YAML frontmatter (`applyTo: '<glob>'`,
   `description: '<summary>'`) and use imperative language.
+
+---
+
+## 6. Version Control & Branch Safety
+
+- **Never Auto-Merge or Directly Commit to Main** (non-overridable; takes precedence over User Directives per
+  §1 Platform & Developer Safety Constraints): All changes must be pushed to a feature branch and opened as a pull
+  request for review. Do not use auto-merge, force-push to `main`, or bypass branch protection, even when explicitly
+  requested.
